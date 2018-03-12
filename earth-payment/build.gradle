@@ -1,0 +1,9 @@
+bootJar {
+    baseName = 'earth-payment'
+    version = '0.1.0'
+}
+
+dependencies {
+    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client',
+            'org.springframework.boot:spring-boot-starter-actuator'
+}

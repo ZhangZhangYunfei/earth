@@ -1,38 +1,63 @@
 buildscript {
-	ext {
-		springBootVersion = '2.0.0.RELEASE'
-	}
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
+    ext {
+        springBootVersion = '2.0.0.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        maven { url 'http://nexus.dianrong.com/nexus/content/groups/public/' }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath('io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE')
+
+    }
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-
-sourceCompatibility = 1.8
-
-bootJar {
-	baseName = 'earth'
-	version =  '0.1.0'
+plugins {
+    id 'io.spring.dependency-management' version '1.0.4.RELEASE'
+    id 'org.springframework.boot' version '2.0.0.RELEASE'
 }
 
-repositories {
-	mavenCentral()
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+        maven { url 'http://nexus.dianrong.com/nexus/content/groups/public/' }
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom 'io.spring.platform:platform-bom:Brussels-SR7'
+            mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Edgware.SR2'
+        }
+    }
+
+    dependencies {
+        compile 'org.projectlombok:lombok',
+                'com.google.guava:guava'
+    }
+}
+
+configure(subprojects.findAll() { it.name != 'earth-util' }) {
+    dependencies {
+        compile('org.springframework.boot:spring-boot-starter-web') {
+            exclude module: 'spring-boot-starter-tomcat'
+        }
+        compile 'org.springframework.boot:spring-boot-starter-jetty',
+                'org.apache.logging.log4j:log4j-web:2.8.2'
+
+        testCompile 'org.springframework.boot:spring-boot-starter-test'
+    }
 }
 
 
-dependencies {
-	compile('org.springframework.boot:spring-boot-starter-web') {
-		exclude module: 'spring-boot-starter-tomcat'
-	}
-	compile 'org.springframework.boot:spring-boot-starter-jetty'
-
-	testCompile 'org.springframework.boot:spring-boot-starter-test'
-}
+group 'com.yxedu'
+version '1.0.0'

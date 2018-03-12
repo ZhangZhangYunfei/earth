@@ -1,0 +1,42 @@
+#hystrix:
+#  image: earth/hystrix-dashboard
+#  ports:
+#   - "7979:7979"
+#  links:
+#   - gateway
+#   - discovery
+discovery:
+  image: earth/earth-discovery
+  ports:
+   - "8761:8761"
+#configserver:
+#  image: earth/earth-config
+#  ports:
+#   - "8888:8888"
+#  links:
+#   - discovery
+gateway:
+  image: earth/earth-gateway
+  ports:
+   - "10000:10000"
+  links:
+   - discovery
+   - configserver
+   - user
+   - payment
+   - examination
+user:
+  image: earth/earth-user
+  links:
+   - discovery
+   - configserver
+payment:
+  image: earth/earth-payment
+  links:
+   - discovery
+   - configserver
+examination:
+  image: earth/earth-examination
+  links:
+   - discovery
+   - configserver

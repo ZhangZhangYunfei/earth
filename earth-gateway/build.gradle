@@ -1,0 +1,9 @@
+bootJar {
+    baseName = 'earth-gateway'
+    version = '0.1.0'
+}
+
+dependencies {
+  compile 'org.springframework.cloud:spring-cloud-starter-netflix-zuul',
+          'org.springframework.cloud:spring-cloud-netflix-sidecar'
+}

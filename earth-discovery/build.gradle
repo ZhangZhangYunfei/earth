@@ -1,0 +1,8 @@
+bootJar {
+    baseName = 'earth-discovery'
+    version = '0.1.0'
+}
+
+dependencies {
+    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+}

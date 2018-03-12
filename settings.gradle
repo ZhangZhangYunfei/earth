@@ -1,0 +1,9 @@
+rootProject.name = 'earth'
+
+include 'earth-discovery'
+include 'earth-examination'
+include 'earth-gateway'
+include 'earth-payment'
+include 'earth-user'
+include 'earth-consul'
+
