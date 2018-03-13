@@ -4,6 +4,23 @@ bootJar {
 }
 
 dependencies {
-    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client',
-            'org.springframework.boot:spring-boot-starter-actuator'
+    compile project(':earth-utils'),
+            'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client',
+            'org.springframework.boot:spring-boot-starter-actuator',
+
+            // security
+            'org.springframework.boot:spring-boot-starter-security',
+            'org.springframework.security:spring-security-core',
+            'org.springframework.security:spring-security-jwt',
+            'org.springframework.security.oauth:spring-security-oauth2',
+
+            // view data
+            'org.springframework:spring-orm',
+            'org.springframework.data:spring-data-jpa',
+            'javax.transaction:javax.transaction-api',
+            'org.hibernate:hibernate-core',
+            'org.hibernate:hibernate-entitymanager',
+            'org.hibernate:hibernate-java8',
+            'com.alibaba:druid:1.1.4',
+            'mysql:mysql-connector-java'
 }

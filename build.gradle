@@ -3,8 +3,8 @@ buildscript {
         springBootVersion = '2.0.0.RELEASE'
     }
     repositories {
-        mavenCentral()
         maven { url 'http://nexus.dianrong.com/nexus/content/groups/public/' }
+        mavenCentral()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -22,6 +22,8 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'eclipse'
     apply plugin: 'idea'
+    apply plugin: 'maven'
+
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
@@ -29,8 +31,8 @@ allprojects {
     targetCompatibility = 1.8
 
     repositories {
-        mavenCentral()
         maven { url 'http://nexus.dianrong.com/nexus/content/groups/public/' }
+        mavenCentral()
     }
 
     dependencyManagement {
@@ -42,11 +44,28 @@ allprojects {
 
     dependencies {
         compile 'org.projectlombok:lombok',
-                'com.google.guava:guava'
+                'com.google.guava:guava',
+
+                // json serializer
+                'com.fasterxml.jackson.core:jackson-annotations:2.8.10',
+                'com.fasterxml.jackson.core:jackson-core',
+                'com.fasterxml.jackson.core:jackson-databind',
+                'com.fasterxml.jackson.jaxrs:jackson-jaxrs-base',
+                'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider',
+                'com.fasterxml.jackson.datatype:jackson-datatype-jsr310',
+                'com.fasterxml.jackson.datatype:jackson-datatype-jdk8',
+                'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5',
+                'com.fasterxml.jackson.datatype:jackson-datatype-guava',
+                'com.fasterxml.jackson.datatype:jackson-datatype-joda',
+                'com.fasterxml.jackson.dataformat:jackson-dataformat-csv',
+                'com.fasterxml.jackson.dataformat:jackson-dataformat-xml',
+                'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml',
+                'com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2',
+                'com.fasterxml.jackson.module:jackson-module-jaxb-annotations'
     }
 }
 
-configure(subprojects.findAll() { it.name != 'earth-util' }) {
+configure(subprojects.findAll() { it.name != 'earth-utils' }) {
     dependencies {
         compile('org.springframework.boot:spring-boot-starter-web') {
             exclude module: 'spring-boot-starter-tomcat'

@@ -6,4 +6,5 @@ include 'earth-gateway'
 include 'earth-payment'
 include 'earth-user'
 include 'earth-consul'
+include 'earth-utils'
 
