@@ -1,0 +1,32 @@
+version '1.0.0'
+
+dependencies {
+            // security
+    compile 'org.bouncycastle:bcpkix-jdk15on',
+
+            // common
+            'commons-io:commons-io',
+            'commons-codec:commons-codec',
+            'commons-beanutils:commons-beanutils',
+            'commons-collections:commons-collections',
+            'org.apache.commons:commons-lang3',
+            'org.apache.commons:commons-compress:1.12',
+
+            //groovy
+            'org.codehaus.groovy:groovy-all',
+            'org.slf4j:slf4j-api'
+
+                // test & report
+    testCompile 'org.testng:testng',
+                'org.mockito:mockito-core',
+                'org.uncommons:reportng:1.1.4',
+                'com.google.inject:guice',
+                
+                // advanced test
+                'com.google.truth:truth:0.28',
+                'org.awaitility:awaitility:2.0.0',
+                
+                // micro benchmark test
+                'org.openjdk.jmh:jmh-core:1.12',
+                'org.openjdk.jmh:jmh-generator-annprocess:1.12'
+}

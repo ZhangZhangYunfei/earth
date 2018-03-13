@@ -1,0 +1,263 @@
+package com.yxedu.earth.utils;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.*;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
+
+@Slf4j
+@Test
+public class SecurityUtilsTests {
+  private PublicKey publicKey;
+  private PrivateKey privateKey;
+
+  @BeforeClass
+  public void setup() {
+    Security.addProvider(new BouncyCastleProvider());
+  }
+
+  @Test(priority = -1)
+  public void convertPKCS12() throws Exception {
+    privateKey = SecurityUtils.from("PKCS12", "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", "123456");
+
+    Assert.assertNotNull(privateKey);
+    Assert.assertEquals(privateKey.getAlgorithm(), "RSA");
+    Assert.assertTrue(privateKey.getEncoded().length > 0);
+  }
+
+  public void convertPKCS12_kft() throws Exception {
+    PrivateKey privateKey = SecurityUtils.from("PKCS12",
+        "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",
+        "123456");
+    Assert.assertNotNull(privateKey);
+    Assert.assertEquals(privateKey.getAlgorithm(), "RSA");
+    Assert.assertTrue(privateKey.getEncoded().length > 0);
+  }
+
+  @Test(priority = -1)
+  public void convertPublicKey() throws Exception {
+    publicKey = SecurityUtils.from("X.509", "MIIDfzCCAmegAwIBAgIERTV1ijANBgkqhkiG9w0BAQsFADBwMQswCQYDVQQGEwI4NjERMA8GA1UECBMIU2hhbmdoYWkxETAPBgNVBAcTCFNoYW5naGFpMREwDwYDVQQKEwhEaWFucm9uZzEQMA4GA1UECxMHRmluQ29yZTEWMBQGA1UEAxMNRGlhbnJvbmcgU3R1YjAeFw0xNTAzMTYwMzAyMjlaFw0xNTA2MTQwMzAyMjlaMHAxCzAJBgNVBAYTAjg2MREwDwYDVQQIEwhTaGFuZ2hhaTERMA8GA1UEBxMIU2hhbmdoYWkxETAPBgNVBAoTCERpYW5yb25nMRAwDgYDVQQLEwdGaW5Db3JlMRYwFAYDVQQDEw1EaWFucm9uZyBTdHViMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhwGDWqfbmdjg9/xkzqyXEKdAxTBQFDyFMbFEg9f5gPZneMqDaLOBiVm8bL5mOUNWd8qy/x3TFJlthuk2XGkoX85rif7Dz3H3NPpIQV2x/m7BA22j6dhYXQcu7iPVEdTlhrcafyxWa9KFVTz6aom71foS6W9RaQim4ZTnYD8OzCdiIDC1xOTVDkJso9s6MUNZbiE7xXTyUcre452pCJj+Cui0yp5vnm4PSkZI6zQyOnJVvP7/IEV1rlbFry6usbjPZi9hCXj0f8kfBYgr+/bOnK4I4Ya5nwMZ8ocBMRpaFM7IphLiRw44VUaf2STwEpyeioQ5C34K99p0f/4FsUBhaQIDAQABoyEwHzAdBgNVHQ4EFgQU7/+jPxEEiUl3+Fc+56oqdB4bxbkwDQYJKoZIhvcNAQELBQADggEBAAlt0dnCArwRUQECMphsVhsx1DyTXNBWyKYfo7zW3GwybdPVfSBn3kw3L2uqTlvQHH/B0+D1zarpG6CQBBQX3Xajk/inU+N7WTvAQwdZASWdhiSKiLj7eFAEBjeJ0aak4/d1ZPHQGHOKa7AtzeZy/3exzQczkHHV3mgddUkVYwgsRfuSi9yzX13o4cW8U2NhKb45YUG9/SPKiPtbWbct/xGD3PTu7XDmB9/D3s1qewYuD6Qs3e4ojpnCgOJn0jzH86J89I38WJEIVyuZgYAKCxO+49M8XBuj6PhAvxGRp7vAl5bhrnEqAiVSj59y92q/eNm0EMQ8t0DOaXaeKIv6Qxg=");
+
+    Assert.assertNotNull(publicKey);
+    Assert.assertEquals(publicKey.getAlgorithm(), "RSA");
+    Assert.assertTrue(publicKey.getEncoded().length > 0);
+  }
+
+  public void convertPKCS8() throws Exception {
+    PrivateKey key = SecurityUtils.from("RSA", "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAIrFrIoH9OoNe1wpo5s48/NUvev76CEQ/jmdqL1yMbQlC32bQXn4XxFXKCLPFLzeIFMd3lslusw8sOHca+MabVtsmHM7ibZsXZ9Cba4nQLdyR2b0Bkrx+rNydym7Z3LXMXK5wXIeEoiBmvKp9bk9Lcb1SiFLjr3yoDmPh1x5Z/k/AgMBAAECgYEAgAjVohypOPDraiL40hP/7/e1qu6mQyvcgugVcYTUmvK64U7HYHNpsyQI4eTRq1f91vHt34a2DA3K3Phzifst/RoonlMmugXg/Klr5nOXNBZhVO6i5XQ3945dUeEq7LhiJTTv0cokiCmezgdmrW8n1STZ/b5y5MIOut8Y1rwOkAECQQC+an4ako+nPNw72kM6osRT/qC589AyOav60F1bHonK6NWzWOMiFekGuvtpybgwt4jbpQxXXRPxvJkgBq873fwBAkEAupGaEcuqXtO2j0hJFOG5t+nwwnOaJF49LypboN0RX5v8nop301//P16Bs/irj5F/mAs9lFR4GZ3bxL8zs5r1PwJBALa1MDMHFlf+CcRUddW5gHCoDkjfLZJDzEVp0WoxLz5Hk2X3kFmQdHxExiCHsfjs4qD/CYx6fzyhHrygLVxgcAECQAT8z3maUDuovUCnVgzQ2/4mquEH5h8Cxe/02e46+rPrn509ZmaoMlKnXCBLjYqRATA3XLYSbAODTNS9p8wtYFECQHa/xgB+nYWoevPC/geObOLAP9HMdNVcIAJq2rgeXVI4P7cFXvksRborHmjuy1fltoR0003qlSg82mxzABbzYUs=", "");
+
+    Assert.assertNotNull(key);
+    Assert.assertEquals(key.getAlgorithm(), "RSA");
+    Assert.assertTrue(key.getEncoded().length > 0);
+  }
+
+  public void convertX509() throws Exception {
+    PublicKey key = SecurityUtils.from("RSA", "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCapYPCoYdO8VNqewtfsVQvn7qkpyXY3LzznbEEpzACsYUKlQvI/uhBdDlAtM6mh0Ey/HNFLyK4fI6st16kwTMdRolplmcKXChCdXS/fXU1QvvPV9wKoKYwBePNfPW3SWrI+3Z8vtTDBv5ig6YdvYGNYRqFmRSDDHCEZARHOCAY5QIDAQAB");
+
+    Assert.assertNotNull(key);
+    Assert.assertEquals(key.getAlgorithm(), "RSA");
+    Assert.assertTrue(key.getEncoded().length > 0);
+  }
+
+  public void serialNoOfPrivateKey() throws Exception {
+    String no = SecurityUtils.serialNo("PKCS12", "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", "000000");
+
+    Assert.assertNotNull(no);
+    Assert.assertFalse(no.isEmpty());
+    Assert.assertEquals(no, "124876885185794726986301355951670452718");
+  }
+
+  public void serialNoOfPublicKey() throws Exception {
+    String no = SecurityUtils.serialNo("X.509", "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tDQpNSUlFT2pDQ0E2T2dBd0lCQWdJUUFwMDVoWHR6Tit6R3A2UkhLOEZkaGpBTkJna3Foa2lHOXcwQkFRVUZBREFrDQpNUXN3Q1FZRFZRUUdFd0pEVGpFVk1CTUdBMVVFQ2hNTVEwWkRRU0JVUlZOVUlFTkJNQjRYRFRFeU1Ea3dOekE0DQpNelExTmxvWERURXpNRGt3TnpBNE16UTFObG93ZkRFTE1Ba0dBMVVFQmhNQ1EwNHhGVEFUQmdOVkJBb1RERU5HDQpRMEVnVkVWVFZDQkRRVEVSTUE4R0ExVUVDeE1JVEc5allXd2dVa0V4RkRBU0JnTlZCQXNUQzBWdWRHVnljSEpwDQpjMlZ6TVMwd0t3WURWUVFERkNRd05ERkFXakl3TVRJdE9TMDNRREF3TURRNU9UazVPbE5KUjA1QU1EQXdNREF3DQpOVGN3Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRQzdWVTZiMDdNTlF4SHd4TTJFDQoxeW1qZS9GeFhMSmhRVGN3c0tISG5xODhLQmNTOHExb3o1Zk9NbXVKNTB6R2xZZktFQWJyWlhsS0tJZFp0YXF6DQpCczlJU1hrTGozWmZZeFVETHBKVTJIZFZiN0RLTnVWY0NUU2F1UkhNd1llZTJWOFJUQW1OL01yWVZVZTNiNUorDQptcHltbUZYZnZZZENwckNDNmExRjN5UnZUT01WV0ZoUkV4NE5sSVJTdWlPdVFUdHBFZ0JORnhhL2g2eEJZSm5RDQpQTHBnUUg0Y21pUUp2WEIwZzZTQlJNTUNvSGIzclRvOTdXN1NXYmlEb2ZsbUFrRllnZlNkRDhRaCs4aHFvMVFCDQpDMUVEQVdFK0dpR0hoY1hqc1FiVnE2Ykw0YjdKSGI0aVNFeUNRdmNLY0NySWNPR00rSFZTMDh3RnNnODlsc0sxDQpSYkpuQWdNQkFBR2pnZ0dQTUlJQml6QWZCZ05WSFNNRUdEQVdnQlJHY3R3bGNwOENUbFdEdFlENUM5dnBrN1AwDQpSVEFkQmdOVkhRNEVGZ1FVaHNjYXZEMGptQ21LZDZuMFcxTklmVElmRkxvd0N3WURWUjBQQkFRREFnVHdNQXdHDQpBMVVkRXdRRk1BTUJBUUF3T3dZRFZSMGxCRFF3TWdZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ0JnZ3JCZ0VGDQpCUWNEQXdZSUt3WUJCUVVIQXdRR0NDc0dBUVVGQndNSU1JSHdCZ05WSFI4RWdlZ3dnZVV3VDZCTm9FdWtTVEJIDQpNUXN3Q1FZRFZRUUdFd0pEVGpFVk1CTUdBMVVFQ2hNTVEwWkRRU0JVUlZOVUlFTkJNUXd3Q2dZRFZRUUxFd05EDQpVa3d4RXpBUkJnTlZCQU1UQ21OeWJERXlOMTh5TXpnd2daR2dnWTZnZ1l1R2dZaHNaR0Z3T2k4dmRHVnpkR3hrDQpZWEF1WTJaallTNWpiMjB1WTI0Nk16ZzVMME5PUFdOeWJERXlOMTh5TXpnc1QxVTlRMUpNTEU4OVEwWkRRU0JVDQpSVk5VSUVOQkxFTTlRMDQvWTJWeWRHbG1hV05oZEdWU1pYWnZZMkYwYVc5dVRHbHpkRDlpWVhObFAyOWlhbVZqDQpkR05zWVhOelBXTlNURVJwYzNSeWFXSjFkR2x2YmxCdmFXNTBNQTBHQ1NxR1NJYjNEUUVCQlFVQUE0R0JBQmFWDQo0UnZKK2RRUHI3c09BTmV0MVRZVzVFYkVLaEtvenJZdmtYNDZJbUpKVXNueFlPLzJaU3RjY0prUjRGMzJxMGdwDQpXSHVzSmJEb1Z3Yk1KUENZZXIzTkpnWWlra3gyMkZveTV3bGFvRkJWQkRIam93bkhaZGIrcUdqQUVGYzRLd3lTDQo4MnJEdUd5dDZ6dlZWZTFrYUFCblpodU9ZS01IRzlzeWNvVlJza1FPDQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tDQo=");
+
+    Assert.assertNotNull(no);
+    Assert.assertFalse(no.isEmpty());
+    Assert.assertEquals(no, "3474813271258769001041842579301293446");
+  }
+
+  public void generateSalt() throws Exception {
+    byte[] salt = SecurityUtils.generateSalt("SHA1PRNG");
+
+    Assert.assertNotNull(salt);
+    Assert.assertEquals(salt.length, 8);
+    Assert.assertEquals(Hex.encodeHexString(salt).length(), 16);
+  }
+
+  public void generateSecretKey() throws Exception {
+    SecretKey key = SecurityUtils.generateSecretKey("DESede");
+
+    Assert.assertNotNull(key);
+    Assert.assertEquals(key.getAlgorithm(), "DESede");
+    Assert.assertEquals(key.getFormat(), "RAW");
+    Assert.assertEquals(key.getEncoded().length, 24);
+  }
+
+  public void generateSecretKeyWithSpec() throws Exception {
+    char[] password = "Testing".toCharArray();
+    PBEKeySpec spec = new PBEKeySpec(password);
+    SecretKey key = SecurityUtils.generateSecretKey("PBEWithSHA256And256BitAES-CBC-BC", spec);
+
+    Assert.assertNotNull(key);
+    Assert.assertEquals(key.getAlgorithm(), "PBEWithSHA256And256BitAES-CBC-BC");
+    Assert.assertEquals(key.getFormat(), "RAW");
+    Assert.assertEquals(key.getEncoded().length, password.length * 2 + 2);
+  }
+
+  public void digest() throws Exception {
+    String data = "This is test message for cryptography testing.";
+    byte[] bytes = SecurityUtils.digest("SHA-1", data.getBytes());
+
+    Assert.assertNotNull(bytes);
+    Assert.assertTrue(bytes.length > 0);
+    Assert.assertEquals(Hex.encodeHexString(bytes).length(), 40);
+  }
+
+  public void encryptAndDecryptWithDES() throws Exception {
+    SecretKey secretKey = SecurityUtils.generateSecretKey("DES");
+
+    String data = "This is test message for cryptography testing.";
+    byte[] encryptedData = SecurityUtils.encrypt("DES/ECB/PKCS5Padding", secretKey, data.getBytes());
+
+    Assert.assertNotNull(encryptedData);
+    Assert.assertTrue(encryptedData.length > 0);
+
+    byte[] decryptedData = SecurityUtils.decrypt("DES/ECB/PKCS5Padding", secretKey, encryptedData);
+    Assert.assertEquals(data, new String(decryptedData));
+  }
+
+  public void signAndVerifyWithRSA() throws Exception {
+    String data = "This is test message for cryptography testing.";
+    byte[] signature = SecurityUtils.sign("SHA1withRSA", privateKey, data.getBytes());
+
+    Assert.assertNotNull(signature);
+    Assert.assertTrue(signature.length > 0);
+    Assert.assertTrue(SecurityUtils.verify("SHA1withRSA", publicKey, data.getBytes(), signature));
+  }
+
+  public void encryptAndDecryptWithRSA() throws Exception {
+    String data = "This is test message for cryptography testing.";
+
+    byte[] encryptedData = SecurityUtils.encrypt("RSA/ECB/PKCS1PADDING", publicKey, data.getBytes());
+    Assert.assertNotNull(encryptedData);
+    Assert.assertTrue(encryptedData.length > 0);
+
+    byte[] decryptedData = SecurityUtils.decrypt("RSA/ECB/PKCS1PADDING", privateKey, encryptedData);
+    Assert.assertEquals(data, new String(decryptedData));
+  }
+
+  public void encryptAndDecryptSymmetrically() throws Exception {
+    String data = "This is test message for cryptography testing.";
+    String algorithm = "PBEWithSHA256And256BitAES-CBC-BC";
+
+    byte[] salt = SecurityUtils.generateSalt("SHA1PRNG");
+    char[] password = "Testing".toCharArray();
+    PBEKeySpec keySpec = new PBEKeySpec(password);
+    PBEParameterSpec parameterSpec = new PBEParameterSpec(salt, 20);
+    SecretKey key = SecurityUtils.generateSecretKey(algorithm, keySpec);
+
+    byte[] encryptedData = SecurityUtils.encrypt(algorithm, parameterSpec, key, data.getBytes());
+    Assert.assertNotNull(encryptedData);
+    Assert.assertTrue(encryptedData.length > 0);
+
+    byte[] decryptedData = SecurityUtils.decrypt(algorithm, parameterSpec, key, encryptedData);
+    Assert.assertEquals(data, new String(decryptedData));
+  }
+
+  public void blockEncrypt() throws Exception {
+    PrivateKey privateKey = SecurityUtils.from("PKCS12",
+        "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", "100000749_272769", StringUtils.EMPTY);
+    String msg = "{\"txn_sub_type\" : \"13\",\"biz_type\" : \"0000\",\"terminal_id\" : \"100000933\",\"member_id\" : \"100000749\",\"pay_code\" : \"ABC\",\"pay_cm\" : \"2\",\"acc_no\" : \"6228480444455553333\",\"id_card_type\" : \"01\",\"id_card\" : \"320301198502169142\",\"id_holder\" : \"王宝\",\"mobile\" : \"13861190205\",\"trans_id\" : \"201609201410521111\",\"txn_amt\" : \"1.00\",\"trade_date\" : \"20160920141053\",\"trans_serial_no\" : \"11116fd1-08f3-4f04-8899-5333526b836c\"}";
+    String encryptedContent = new String(org.bouncycastle.util.encoders.Hex.encode(SecurityUtils
+        .blockEncrypt("RSA/ECB/PKCS1Padding", privateKey,
+            Base64.encodeBase64(msg.getBytes("UTF-8")))), "UTF-8");
+    String expectedDataContent = "494235093656c3a6542a338d45cc0198c5e92243f9ebfafa86dda6eea780c78d9123d4c65b37ca15f3b9bb4e309660dc378fb18c41fd09006fa52750d82c187de96e233aef1dab816dce2af0a9d127b32cbad0cd90699118d3057878966cfbffb8ea7090c624c3969345ee58afd9d09a57bed963a35af1c4d652e391863138331b520557659a9637b4b36e8c4674d6ae9a4bde5820a9ec47b8e0e9df3acfc1953c9c4ca32af284325bb93941f8d5df4a55cfacc17a91e99c5127ecbec26501930f3552d72dfb41cdad08273e1632f0cad786b0d7aba8c24ea5ffde87757f5be9f847f973714952cdacdc02d62d63576eac038fd63633bcc508f4f897a98f7d0a0d4f6a81a9cfe7d1fb4840b9b8615614fb894132896d524fcdeb3e077fe5e49e13c35cdc8eeeced56d057968d5fd7474d9a2334d8819c98b8cfb432ddedd2cf53d275f2c544ef05464f238eb2e323694a895b41b27a3983c07e6a84cb1c9393c0a22f043bf0dbaddd8de9bffab5adece3ffb041d2a61098a7d99297efd1f3a957d6a8f7f3f8aaafb41f5ad28a55093c2fafc1b8140249ce6065629ca54cbb71a33a59ca3ca14ca2c33245918a911adbc6264450f2176fd466a38331fc807b9d5c47877a996f5ea32f87c7ca11a423ecc603c63bd35068144246f2adbf8c462d1a34ecf4c387b1040c95c7a501d62742b1bdf352f71556e66c371f737ce662f9d7470fa01f798dd8190d8eff075608dd8236fef5435c28b532a76be53ccba9a935dff4ef7ccc15784d33c1dd40debe574a6ddde3666c204858a3dc62e3440a352701489bb6c5a24bce917b1f0cd3ab1488c90c9e08e2f7f3f66735db3272a6b2beaa1191bb05165e80d6300df11c97d4de88d0847cebcbf2b1410cb32ce8af69d";
+    Assert.assertEquals(encryptedContent, expectedDataContent);
+  }
+
+  public void blockDecrypt() throws Exception {
+    PublicKey publicKey = SecurityUtils.from("X.509", "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tDQpNSUlDV1RDQ0FjS2dBd0lCQWdJR0FVM00vNlkzTUEwR0NTcUdTSWIzRFFFQkRRVUFNSEF4SFRBYkJnTlZCQU1NDQpGREV3TURBd01EYzBPVUJBTVRBd01EQXdPVE16TVJFd0R3WURWUVFIREFoemFHRnVaMmhoYVRFUk1BOEdBMVVFDQpDQXdJVTJoaGJtZElZV2t4Q3pBSkJnTlZCQVlUQWtOT01Rc3dDUVlEVlFRS0RBSmlaakVQTUEwR0ExVUVDd3dHDQpZbUZ2Wm05dk1CNFhEVEUxTURZd056QTNOVEF4TlZvWERURTFNRFl6TURBM05UQXhOVm93Y0RFZE1Cc0dBMVVFDQpBd3dVTVRBd01EQXdOelE1UUVBeE1EQXdNREE1TXpNeEVUQVBCZ05WQkFjTUNITm9ZVzVuYUdGcE1SRXdEd1lEDQpWUVFJREFoVGFHRnVaMGhoYVRFTE1Ba0dBMVVFQmhNQ1EwNHhDekFKQmdOVkJBb01BbUptTVE4d0RRWURWUVFMDQpEQVppWVc5bWIyOHdnWjh3RFFZSktvWklodmNOQVFFQkJRQURnWTBBTUlHSkFvR0JBSUhnRjZRQkk1QzZwK1ZxDQp4OCt1RnNSYlBBQzJyVFdGTHdyVWU2N0poNjFkcWsvWU5EQzJWWlVuZDd5Vzl2WnQydGRDL01uZVZIcjUvR21mDQpFakFSTHJHUjZ6NmIzckI2bjhVeUVucy9PUE03SGM0cWpqNFhTOS8xbXVoR09DNkpIdExiKy9CUUZ4OUJZQmhLDQo0c21KbzJiZC9taWpXa1UwYmNQZjBDUUpCdFRMQWdNQkFBRXdEUVlKS29aSWh2Y05BUUVOQlFBRGdZRUFUUlBqDQpZSTNCS2FsMmlRdUYyQUJFWVpMRHBqdXBiNmpZMzFnT0ZCanppR2ZTVEFINysxRkQwWkZlNWRPdzlnOUhtemNjDQpNUXNxMVVlRFpsd3dLVHVzMmdLampiaE9ZT0h4TEVQU1dnc0tNTUdRNFFzaGY4Z29UVGt1SG9Xakc5WHhaOW5iDQpoeEZsRzB5MkNNSTMwSTdQL29OVDkzZSt3blBEQWJvb3dmSlNaVDg9DQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tDQo=");
+    String msg = "385f27672785256928c96b9be5c00b851d5b3f6278152e299a5474202fb5326486892c523c13805655c6b6a8dc109f45d496b880c2956f693101d451cb3d958be9d0c805b2d2f135b390ad9d893c0754a8f6de1c504d1ece472281756e16247b5c3e083f2c1f450b307ec8d73be821274ed3f1630913fbbe7490208e3dd6d1b15f3e0c0430aff716fa73a23afcbf17425430334cb026478699f95d3a42879066ae7c1aa7aa5c0433ebc28f28efde8e2cb0de685a03f3e8823f478b935b1178b728b0f115a428a5a6b5f731e3e66454de2f7004ca7475195c8aec2ec4e49985578bc6f44e388854d5d2a3ca01cde9c8ef3c78d3ef52e7b0ac758dbbcea23cc4432f741be6f9c0b3a87219664b878fc3d6a574073ed07316db2d2ab4d3810781f604611014930e5c83bb6d187fa2a223f6cdced6893f794fef839568874bf16a9499aa0e2a3fbac72c7b734a93e1bf874ec9b3eebe1ccfbd3e46cb99eb28d3ac19fdbbf549cbb6353b0a474869f1fdec076715c7b71abce31f5ab29c7f16d348ad6b89bb7fd9c65b204bc8f4e5a4f04299ed9f3a5b6fb482594a4049cd3fe1eb7a9934c4024c4bf49e850430a862e7dece99e6ac4a9810aebb9d99428bc5b29118f88e22f8dd1a32cd43acd9c5331ba04b6ae6c428a70ad189c4ee6225fb68ce4eb3910ce10201e6b6385b729cd49c634e76e2e67732e0f8cf9acbfac2b237c605728d0ed4022446bfad7bf2a3019901e4dce42b1e9d8f6affc9f6c87fc98f2dc905ee50d0aebaf5b3efd83bc9698a5380477005a4800fe8a3177b745c74828c9f542070ddfcff113669d9f41c80bfcd52a4d5ab31ae3bfd63cf3bee58e4c7087b7d75e51f6a6f60fe66872ed985ead58f923ad023a9f62213c39a2212a865eb0c";
+    String decryptedMsg = new String(SecurityUtils.blockDecrypt("RSA/ECB/PKCS1Padding",
+        publicKey, org.bouncycastle.util.encoders.Hex.decode(msg)), "UTF-8");
+    String expectedDecryptedMsg = "eyJiaXpfdHlwZSI6IjAwMDAiLCJkYXRhX3R5cGUiOiJqc29uIiwibWVtYmVyX2lkIjoiMTAwMDAwNzQ5IiwicmVzcF9jb2RlIjoiMDAwMCIsInJlc3BfbXNnIjoi5Lqk5piT5oiQ5YqfIiwic3VjY19hbXQiOiIxIiwidGVybWluYWxfaWQiOiIxMDAwMDA5MzMiLCJ0cmFkZV9kYXRlIjoiMjAxNjA5MjAxNDQ0MDYiLCJ0cmFuc19pZCI6IjIwMTYwOTIwMTQ0NDA1MTExMSIsInRyYW5zX25vIjoiMjAxNjA5MjAwMTEwMDAwNDAxNTU4NDA2IiwidHJhbnNfc2VyaWFsX25vIjoiOGIwZWQwMWQtMmZiZS00NGEzLWE4NjYtNDRhYTJmMGU2ZTE2IiwidHhuX3N1Yl90eXBlIjoiMTMiLCJ0eG5fdHlwZSI6IjA0MzEiLCJ2ZXJzaW9uIjoiNC4wLjAuMCJ9";
+    Assert.assertEquals(decryptedMsg, expectedDecryptedMsg);
+  }
+
+  @Test
+  public void generateRsaKeyPair() throws Exception {
+
+    KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(SecurityUtils.RSA);
+    keyPairGen.initialize(512);
+    KeyPair keyPair = keyPairGen.generateKeyPair();
+    RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+    RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+    String pubKey = StringUtils.encodeBase64(publicKey.getEncoded());
+    String priKey = StringUtils.encodeBase64(privateKey.getEncoded());
+    Assert.assertNotNull(priKey);
+    Assert.assertNotNull(pubKey);
+  }
+
+  @Test
+  public void generateRsaCertification() throws Exception {
+    byte[] bytes = Base64.decodeBase64("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");
+
+    String path = "/home/drjr/tmp";
+    String name = "test";
+
+    RsaCertification rsa = SecurityUtils.generateRsaCertification(
+        "123456", path, name,
+        null, null, 512);
+
+    PublicKey pubKey = SecurityUtils.from(SecurityUtils.X509, rsa.getCertFileContent());
+    PrivateKey priKey = SecurityUtils.from(SecurityUtils.PKCS12, rsa.getPfxFileContent(), rsa.getPfxPassword());
+
+    Assert.assertNotNull(pubKey);
+    Assert.assertNotNull(priKey);
+  }
+
+  @Test(enabled = false)
+  public void getPrivateKeyFromJKS() throws Exception {
+    String str = new String(
+        Base64.encodeBase64(
+            IOUtils.toByteArray(new FileInputStream(("/home/drjr/server.jks")))));
+    System.out.println(str);
+    PrivateKey privateKey = SecurityUtils.from("JKS", str,"123456", null);
+    Assert.assertNotNull(privateKey);
+  }
+
+  @Test
+  public void loadFile() throws IOException, SecurityException {
+    InputStream in = new FileInputStream("/home/drjr/source/braavos.git/braavos-util/src/test/java/b1ba4dd0-b005-4488-9755-311c3fe8bfad.pfx");
+    byte[] buffer = new byte[in.available()];
+    IOUtils.read(in,buffer);
+    String rsa = StringUtils.encodeBase64(buffer);
+
+    PrivateKey privateKey = SecurityUtils.from("PKCS12", rsa, "DeshiTech1234");
+    String base64 = StringUtils.encodeBase64(privateKey.getEncoded());
+
+    PublicKey publicKey1 = SecurityUtils.from("X.509", rsa);
+    System.out.println(base64);
+  }
+
+}

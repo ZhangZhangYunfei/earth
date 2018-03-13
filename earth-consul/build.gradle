@@ -6,7 +6,7 @@ bootJar {
 dependencies {
     compile 'org.springframework.cloud:spring-cloud-consul-config',
             'org.springframework.cloud:spring-cloud-consul-discovery',
-            'org.springframework.cloud:spring-cloud-consul-bus',
-            'org.springframework.cloud:spring-cloud-consul-ui',
+//            'org.springframework.cloud:spring-cloud-consul-bus',
+//            'org.springframework.cloud:spring-cloud-consul-ui',
             'org.springframework.boot:spring-boot-starter-actuator'
 }
