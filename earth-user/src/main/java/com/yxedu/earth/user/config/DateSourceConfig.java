@@ -12,10 +12,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
-@EnableJpaRepositories
+@EnableJpaRepositories("com.yxedu.earth")
 @EnableTransactionManagement
 @Configuration
-public class CoreConfig {
+public class DateSourceConfig {
 
   /**
    * Creates dataSource.

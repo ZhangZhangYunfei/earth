@@ -1,9 +1,14 @@
 package com.yxedu.earth.user.config;
 
+import com.yxedu.earth.user.service.DigestPasswordEncoder;
+import com.yxedu.earth.user.service.UserService;
+
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -32,19 +37,19 @@ public class AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
   @Autowired
   private DataSource dataSource;
 
-  @Autowired
-  private JdbcTokenStore tokenStore;
-
-  @Autowired
-  private AuthorizationCodeServices authorizationCodeServices;
-
   @Override
   public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
     endpoints
         .authenticationManager(authenticationManager)
-        .authorizationCodeServices(authorizationCodeServices)
-        .accessTokenConverter(accessTokenConverter())
-        .tokenStore(tokenStore);
+        .authorizationCodeServices(new JdbcAuthorizationCodeServices(dataSource))
+        .accessTokenConverter(new JwtAccessTokenConverter())
+        .tokenStore(new JdbcTokenStore(dataSource))
+        .pathMapping("/oauth/authorize", "/user/oauth/authorize")
+        .pathMapping("/oauth/token", "/user/oauth/token")
+        .pathMapping("/oauth/confirm_access", "/user/oauth/confirm_access")
+        .pathMapping("/oauth/error", "/user/oauth/error")
+        .pathMapping("/oauth/check_token", "/user/oauth/check_token")
+        .pathMapping("/oauth/token_key", "/user/oauth/token_key");
   }
 
   /**
@@ -53,33 +58,13 @@ public class AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
    */
   @Override
   public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-    clients.jdbc(dataSource)
-        .withClient("acme")
-        .secret("acmesecret")
+    clients.inMemory()
+        .withClient("DEFAULT")
+        .secret("DEFAULT")
         .authorizedGrantTypes("authorization_code", "refresh_token",
-            "password").scopes("openid");
-  }
-
-  /**
-   * Registers the token converter.
-   */
-  @Bean
-  public JwtAccessTokenConverter accessTokenConverter() {
-    return new JwtAccessTokenConverter();
-  }
-
-  /**
-   * Registers the token services.
-   */
-  @Bean
-  @Autowired
-  public TokenStore tokenStore(DataSource dataSource) {
-    return new JdbcTokenStore(dataSource);
-  }
-
-  @Bean
-  @Autowired
-  protected AuthorizationCodeServices authorizationCodeServices(DataSource dataSource) {
-    return new JdbcAuthorizationCodeServices(dataSource);
+            "password", "implicit", "client_credentials")
+        .scopes("DEFAULT")
+        .resourceIds("user", "payment", "examination")
+        .accessTokenValiditySeconds(1800);
   }
 }
