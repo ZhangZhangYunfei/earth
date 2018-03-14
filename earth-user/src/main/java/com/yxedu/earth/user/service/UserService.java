@@ -1,7 +1,5 @@
 package com.yxedu.earth.user.service;
 
-import com.google.common.base.Strings;
-
 import com.yxedu.earth.user.repository.UserRepository;
 import com.yxedu.earth.utils.StringUtils;
 

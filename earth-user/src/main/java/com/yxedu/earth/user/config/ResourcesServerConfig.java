@@ -26,23 +26,6 @@ public class ResourcesServerConfig extends ResourceServerConfigurerAdapter {
   @Value("${spring.application.name}")
   private String appName;
 
-  /**
-   * Sets {@code AuthenticationManagerBuilder}.
-   */
-  @Autowired
-  public void globalUserDetails(AuthenticationManagerBuilder builder,
-                                UserService userService) {
-    try {
-      log.error("");
-      builder
-          .userDetailsService(userService)
-          .passwordEncoder(new DigestPasswordEncoder());
-    } catch (Exception err) {
-      log.error("");
-      throw new BeanCreationException("Error initializing the user details service", err);
-    }
-  }
-
   @Override
   public void configure(ResourceServerSecurityConfigurer configurer) throws Exception {
     configurer
@@ -56,7 +39,11 @@ public class ResourcesServerConfig extends ResourceServerConfigurerAdapter {
    */
   @Override
   public void configure(HttpSecurity http) throws Exception {
-
+    http
+        .csrf().disable()
+        .authorizeRequests()
+        .antMatchers("/user**")
+        .authenticated();
   }
 
   private SecurityExpressionHandler<FilterInvocation> webExpressionHandler() {
