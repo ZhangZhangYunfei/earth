@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 
-@FeignClient("payment")
+//@FeignClient("payment")
 public interface PaymentClient {
   @RequestMapping(method = RequestMethod.GET, value = "/stores")
   List<String> getStores();
