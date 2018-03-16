@@ -80,6 +80,39 @@ configure(subprojects.findAll() { it.name != 'earth-utils' && it.name != 'earth-
     }
 }
 
+// Services
+configure(subprojects.findAll() { it.name == 'earth-user' || it.name == 'earth-payment' || it.name == 'earth-examination' }) {
+    dependencies {
+        compile project(':earth-utils'),
+                project(':earth-common'),
+                'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client',
+                'org.springframework.boot:spring-boot-starter-actuator',
+
+                // security
+                'org.springframework.boot:spring-boot-starter-security',
+                'org.springframework.security.oauth:spring-security-oauth2',
+
+                // session
+                'org.springframework.session:spring-session',
+
+                // cache&redis
+                'com.github.ben-manes.caffeine:caffeine',
+                'org.springframework.data:spring-data-keyvalue',
+                'org.springframework.data:spring-data-redis',
+                'redis.clients:jedis',
+
+                // view data
+                'org.springframework:spring-orm',
+                'org.springframework.data:spring-data-jpa',
+                'javax.transaction:javax.transaction-api',
+                'org.hibernate:hibernate-core',
+                'org.hibernate:hibernate-entitymanager',
+                'org.hibernate:hibernate-java8',
+                'com.alibaba:druid:1.1.4',
+                'mysql:mysql-connector-java'
+    }
+}
+
 
 group 'com.yxedu'
 version '1.0.0'

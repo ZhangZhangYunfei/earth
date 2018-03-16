@@ -7,8 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisNode;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import redis.clients.jedis.JedisPoolConfig;
 
 import javax.sql.DataSource;
 
@@ -44,5 +50,29 @@ public class DataSourceConfig {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     jdbcTemplate.setFetchSize(200);
     return jdbcTemplate;
+  }
+
+  /**
+   * Creates the redis connection factory.
+   */
+  @Bean
+  public RedisConnectionFactory redisConnectionFactory(
+      @Value("${jedis.pool.max-idle}") int maxIdle,
+      @Value("${jedis.pool.max-total}") int maxTotal,
+      @Value("${jedis.pool.max-wait-millis}") long maxWaitMillis,
+      @Value("${EARTH_REDIS_HOST}") String redisHost,
+      @Value("${EARTH_REDIS_PORT}") int redisPort,
+      @Value("${EARTH_REDIS_PASSWORD}") String redisPassword) {
+    JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+    jedisPoolConfig.setMaxIdle(maxIdle);
+    jedisPoolConfig.setMaxTotal(maxTotal);
+    jedisPoolConfig.setMaxWaitMillis(maxWaitMillis);
+    jedisPoolConfig.setTestOnBorrow(true);
+
+    JedisConnectionFactory factory = new JedisConnectionFactory(jedisPoolConfig);
+    factory.setHostName(redisHost);
+    factory.setPort(redisPort);
+    factory.setPassword(redisPassword);
+    return factory;
   }
 }
