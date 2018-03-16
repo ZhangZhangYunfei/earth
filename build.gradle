@@ -65,7 +65,8 @@ allprojects {
     }
 }
 
-configure(subprojects.findAll() { it.name != 'earth-utils' }) {
+// App
+configure(subprojects.findAll() { it.name != 'earth-utils' && it.name != 'earth-common' }) {
     dependencies {
         compile('org.springframework.boot:spring-boot-starter-web') {
             exclude module: 'spring-boot-starter-tomcat'

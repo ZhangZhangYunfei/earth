@@ -7,4 +7,5 @@ include 'earth-payment'
 include 'earth-user'
 include 'earth-consul'
 include 'earth-utils'
+include 'earth-common'
 
