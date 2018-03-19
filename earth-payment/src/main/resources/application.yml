@@ -13,3 +13,10 @@ eureka:
 ribbon:
   eureka:
     enabled: true
+
+--- # Jedis Pool Preferences
+jedis:
+  pool:
+    max-idle: 50
+    max-total: 200
+    max-wait-millis: 5000
