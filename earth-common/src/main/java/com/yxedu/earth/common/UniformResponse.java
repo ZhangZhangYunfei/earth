@@ -13,6 +13,9 @@ public class UniformResponse {
   private String message;
   private Object content;
 
+  /**
+   * Make checkstyle happy.
+   */
   public static UniformResponse success(Object content) {
     return UniformResponse.builder()
         .status(SUCCESS)
@@ -20,6 +23,9 @@ public class UniformResponse {
         .build();
   }
 
+  /**
+   * Make checkstyle happy.
+   */
   public static UniformResponse failed(String code, String message) {
     return UniformResponse.builder()
         .status(FAILED)

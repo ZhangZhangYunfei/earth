@@ -1,12 +1,11 @@
 package com.yxedu.earth.user.config;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.yxedu.earth.common.security.EarthUserDetails;
+import com.yxedu.earth.user.config.bean.CustomAuthenticationProvider;
 import com.yxedu.earth.user.repository.UserRepository;
 import com.yxedu.earth.utils.SecurityExtUtils;
 import com.yxedu.earth.utils.StringUtils;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.BeanCreationException;
@@ -14,14 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,11 +30,15 @@ public class AuthenticationConfig {
   protected void configure(AuthenticationManagerBuilder builder, UserRepository userRepository) {
     try {
       builder
+          // register our own provider for captcha
+          .authenticationProvider(new CustomAuthenticationProvider())
           .userDetailsService(username -> {
             Optional<com.yxedu.earth.user.domain.User> user = userRepository.findByIdNo(username);
             if (user.isPresent()) {
-              return new User(user.get().getIdNo(),
-
+              return new EarthUserDetails(user.get().getId(),
+                  user.get().getIdNo(),
+                  user.get().getTelephone(),
+                  user.get().getUsername(),
                   StringUtils.joinWithComma(
                       Arrays.asList(user.get().getPasswordHash(), user.get().getSalt())),
                   user.get().isEnabled(),
@@ -51,7 +51,10 @@ public class AuthenticationConfig {
 
             user = userRepository.findByTelephone(username);
             if (user.isPresent()) {
-              return new User(user.get().getIdNo(),
+              return new EarthUserDetails(user.get().getId(),
+                  user.get().getIdNo(),
+                  user.get().getTelephone(),
+                  user.get().getUsername(),
                   StringUtils.joinWithComma(
                       Arrays.asList(user.get().getPasswordHash(), user.get().getSalt())),
                   user.get().isEnabled(),
@@ -70,32 +73,6 @@ public class AuthenticationConfig {
       throw new BeanCreationException("Error initializing the user details service", err);
     }
   }
-
-//  @Getter
-//  @EqualsAndHashCode(callSuper = true)
-//  @JsonInclude(JsonInclude.Include.NON_EMPTY)
-//  public static class EarthUserDetails extends User {
-//    private final String idNo;
-//    private final String telephone;
-//
-//    /**
-//     * Constructor.
-//     */
-//    EarthUserDetails(String idNo,
-//                     String telephone,
-//                     String username,
-//                     String password,
-//                     boolean enabled,
-//                     boolean accountNonExpired,
-//                     boolean credentialsNonExpired,
-//                     boolean accountNonLocked,
-//                     Collection<? extends GrantedAuthority> authorities) {
-//      super(username, password, enabled, accountNonExpired,
-//          credentialsNonExpired, accountNonLocked, authorities);
-//      this.idNo = idNo;
-//      this.telephone = telephone;
-//    }
-//  }
 
   public static class DigestPasswordEncoder implements PasswordEncoder {
 

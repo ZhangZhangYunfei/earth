@@ -1,4 +1,8 @@
 package com.yxedu.earth.examination.repository;
 
-public interface ExaminationRepository {
+import com.yxedu.earth.examination.domain.Examination;
+
+import org.springframework.data.repository.CrudRepository;
+
+public interface ExaminationRepository extends CrudRepository<Examination, Long> {
 }

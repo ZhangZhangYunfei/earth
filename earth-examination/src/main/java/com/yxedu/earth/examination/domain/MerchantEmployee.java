@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -21,11 +19,11 @@ import javax.persistence.Version;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(of = {"merchantId", "subject"})
+@EqualsAndHashCode(of = {"merchantId", "employeeId"})
 @ToString
 @Entity
-@Table(name = "examination")
-public class Examination {
+@Table(name = "merchant_employee")
+public class MerchantEmployee {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -36,22 +34,12 @@ public class Examination {
   @Column(name = "merchant_id", nullable = false)
   private Long merchantId;
 
-  @Column(nullable = false)
-  private String subject;
+  @Column(name = "employee_id", nullable = false)
+  private Long employeeId;
 
-  @Column
-  private String requirement;
-
-  @Column
-  private String description;
-
-  @Column
-  @Enumerated(EnumType.STRING)
-  private ExaminationStatus status;
-
-  @Column(nullable = false,name = "created_time")
+  @Column(nullable = false, name = "created_time")
   private LocalDateTime createdTime;
 
-  @Column(nullable = false,name = "updated_time")
+  @Column(nullable = false, name = "updated_time")
   private LocalDateTime updatedTime;
 }

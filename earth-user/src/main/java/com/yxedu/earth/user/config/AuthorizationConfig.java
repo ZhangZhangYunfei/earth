@@ -1,10 +1,6 @@
 package com.yxedu.earth.user.config;
 
-import com.yxedu.earth.utils.json.JsonProviderHolder;
-import com.yxedu.earth.utils.json.jackson.JacksonProvider;
-
 import lombok.Getter;
-import lombok.ToString;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +18,6 @@ import org.springframework.security.oauth2.config.annotation.configurers.ClientD
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
-import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.error.DefaultWebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
@@ -85,10 +80,13 @@ public class AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
   public static class ExceptionTranslator extends DefaultWebResponseExceptionTranslator {
     private ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 
-    public ResponseEntity<OAuth2Exception> translate(Exception e) throws Exception {
+    /**
+     * make check style happy.
+     */
+    public ResponseEntity<OAuth2Exception> translate(Exception err) throws Exception {
 
       // Try to extract a SpringSecurityException from the stacktrace
-      Throwable[] causeChain = throwableAnalyzer.determineCauseChain(e);
+      Throwable[] causeChain = throwableAnalyzer.determineCauseChain(err);
       Exception ase = (OAuth2Exception) throwableAnalyzer.getFirstThrowableOfType(
           OAuth2Exception.class, causeChain);
 
@@ -97,10 +95,10 @@ public class AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
         return handleOAuth2Exception(new DefaultOAuth2Exception(exception.getMessage(), 400, ase));
       }
 
-      ase = (AuthenticationException) throwableAnalyzer.getFirstThrowableOfType(AuthenticationException.class,
-          causeChain);
+      ase = (AuthenticationException) throwableAnalyzer.getFirstThrowableOfType(
+          AuthenticationException.class, causeChain);
       if (ase != null) {
-        return handleOAuth2Exception(new DefaultOAuth2Exception("未授权", 401, e));
+        return handleOAuth2Exception(new DefaultOAuth2Exception("未授权", 401, err));
       }
 
       ase = (AccessDeniedException) throwableAnalyzer
@@ -116,28 +114,30 @@ public class AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
             new DefaultOAuth2Exception("禁止的方法", 405, ase));
       }
 
-      return handleOAuth2Exception(new DefaultOAuth2Exception("内部错误", 500, e));
+      return handleOAuth2Exception(new DefaultOAuth2Exception("内部错误", 500, err));
     }
 
-    private ResponseEntity<OAuth2Exception> handleOAuth2Exception(OAuth2Exception e) throws IOException {
+    private ResponseEntity<OAuth2Exception> handleOAuth2Exception(OAuth2Exception err)
+        throws IOException {
 
-      int status = e.getHttpErrorCode();
+      int status = err.getHttpErrorCode();
       HttpHeaders headers = new HttpHeaders();
       headers.set("Cache-Control", "no-store");
       headers.set("Pragma", "no-cache");
-      if (status == HttpStatus.UNAUTHORIZED.value() || (e instanceof InsufficientScopeException)) {
+      if (status == HttpStatus.UNAUTHORIZED.value()
+          || (err instanceof InsufficientScopeException)) {
         headers.set("WWW-Authenticate",
-            String.format("%s %s", OAuth2AccessToken.BEARER_TYPE, e.getSummary()));
+            String.format("%s %s", OAuth2AccessToken.BEARER_TYPE, err.getSummary()));
       }
 
-      return new ResponseEntity<>(e, headers, HttpStatus.valueOf(status));
+      return new ResponseEntity<>(err, headers, HttpStatus.valueOf(status));
     }
 
     @Getter
     static class DefaultOAuth2Exception extends OAuth2Exception {
 
-      DefaultOAuth2Exception(String msg, int code, Throwable t) {
-        super(msg, t);
+      DefaultOAuth2Exception(String msg, int code, Throwable throwable) {
+        super(msg, throwable);
         this.addAdditionalInformation("status", "FAILED");
         this.addAdditionalInformation("code", Integer.toString(code));
         this.addAdditionalInformation("message", msg);
