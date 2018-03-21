@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+@JsonIgnoreProperties(value = {"passwordHash", "salt"})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,7 +35,7 @@ public class User {
   @Version
   private Long version;
 
-  @Column(unique = true, nullable = false, length = 60)
+  @Column(unique = true, nullable = false, length = 18)
   private String idNo;
 
   @Column(unique = true, nullable = false, length = 13)

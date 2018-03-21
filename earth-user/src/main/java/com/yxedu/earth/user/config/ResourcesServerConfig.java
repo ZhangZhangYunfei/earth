@@ -1,6 +1,9 @@
 package com.yxedu.earth.user.config;
 
+import com.yxedu.earth.common.Constants;
 import com.yxedu.earth.common.UniformResponse;
+import com.yxedu.earth.common.security.CustomAuthenticationDetailsSource;
+import com.yxedu.earth.user.config.bean.CustomAuthenticationProvider.CaptchaException;
 import com.yxedu.earth.utils.json.JsonProviderHolder;
 
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -68,6 +70,7 @@ public class ResourcesServerConfig extends ResourceServerConfigurerAdapter {
         .and() // login config
         .formLogin()
         .loginProcessingUrl("/users/login")
+        .authenticationDetailsSource(new CustomAuthenticationDetailsSource()) // for captcha
         .successHandler(new LoginSuccessHandler())
         .failureHandler(new LoginFailureHandler())
         .permitAll()
@@ -78,13 +81,8 @@ public class ResourcesServerConfig extends ResourceServerConfigurerAdapter {
   }
 
   private void configWebSecurity(HttpSecurity http) throws Exception {
-    ExpressionUrlAuthorizationConfigurer<HttpSecurity>
-        .ExpressionInterceptUrlRegistry registry = http.authorizeRequests();
-    registry.expressionHandler(new OAuth2WebSecurityExpressionHandler());
-    // other APIs are free to access
-    registry
-        .antMatchers("/users**")
-        .authenticated()
+    http.authorizeRequests()
+        //.expressionHandler(new OAuth2WebSecurityExpressionHandler())
         .anyRequest()
         .permitAll();
   }
@@ -96,19 +94,9 @@ public class ResourcesServerConfig extends ResourceServerConfigurerAdapter {
                                         Authentication authentication)
         throws ServletException, IOException {
       clearAuthenticationAttributes(request);
+      //移除验证码
+      request.getSession().removeAttribute(Constants.CAPTCHA_SESSION_KEY);
       enhanceResponse(response, "SUCCESS", HttpServletResponse.SC_OK, "登录成功!");
-    }
-  }
-
-  private static class LoginFailureHandler implements AuthenticationFailureHandler {
-    @Override
-    public void onAuthenticationFailure(HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        AuthenticationException exception)
-        throws IOException, ServletException {
-      log.error("Failed to login the system.", exception);
-      enhanceResponse(response, "FAILED", HttpServletResponse.SC_UNAUTHORIZED,
-          "登录失败，用户名或者密码错误！");
     }
   }
 
@@ -119,6 +107,21 @@ public class ResourcesServerConfig extends ResourceServerConfigurerAdapter {
                                 Authentication authentication)
         throws IOException, ServletException {
       enhanceResponse(response, "SUCCESS", HttpServletResponse.SC_OK, "登出成功！");
+    }
+  }
+
+  private static class LoginFailureHandler implements AuthenticationFailureHandler {
+    @Override
+    public void onAuthenticationFailure(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        AuthenticationException exception)
+        throws IOException, ServletException {
+      log.error("Failed to login the system.", exception);
+      request.getSession().removeAttribute(Constants.CAPTCHA_SESSION_KEY);
+      String msg = (exception instanceof CaptchaException)
+          ? exception.getMessage()
+          : "登录失败，用户名或者密码错误！";
+      enhanceResponse(response, "FAILED", HttpServletResponse.SC_UNAUTHORIZED, msg);
     }
   }
 

@@ -8,14 +8,9 @@ import com.yxedu.earth.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -129,5 +124,10 @@ public class UserService {
     user.setPasswordHash(SecurityExtUtils.digest(newPassword, salt));
     user.setSalt(salt);
     return userRepository.save(user).getId().toString();
+  }
+
+  public User findByIdNo(String idNo) {
+    return userRepository.findByIdNo(idNo)
+        .orElseThrow(() -> new EarthException("The idno is not found."));
   }
 }

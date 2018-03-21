@@ -37,6 +37,9 @@ public class App {
   @Value("${spring.application.name:consul}")
   private String appName;
 
+  /**
+   * make check style happy.
+   */
   @PostConstruct
   public void init() {
     if (resolver == null) {

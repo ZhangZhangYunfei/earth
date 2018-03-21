@@ -1,4 +1,4 @@
-package com.yxedu.earth.user.endpoint;
+package com.yxedu.earth.examination.endpoint;
 
 import com.yxedu.earth.common.UniformResponse;
 import com.yxedu.earth.common.exception.ExceptionResponseConverter;

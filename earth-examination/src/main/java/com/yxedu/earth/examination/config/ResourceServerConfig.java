@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.provider.expression.OAuth2WebSecurity
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -52,12 +51,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         .authenticationEntryPoint(new RestAuthenticationEntryPoint());
   }
 
-  private ResourceServerTokenServices getTokenService() {
-    DefaultTokenServices services = new DefaultTokenServices();
-    services.setTokenStore(new JdbcTokenStore(dataSource));
-    return services;
-  }
-
   @Override
   public void configure(HttpSecurity http) throws Exception {
     http
@@ -67,7 +60,17 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         .and() // session
         .securityContext()
         .securityContextRepository(new HttpSessionSecurityContextRepository());
-    http.authorizeRequests().anyRequest().authenticated();
+
+    http.authorizeRequests()
+        //.expressionHandler(new OAuth2WebSecurityExpressionHandler())
+        .anyRequest()
+        .permitAll();
+  }
+
+  private ResourceServerTokenServices getTokenService() {
+    DefaultTokenServices services = new DefaultTokenServices();
+    services.setTokenStore(new JdbcTokenStore(dataSource));
+    return services;
   }
 
   private static class BaseAccessDeniedHandler implements AccessDeniedHandler {

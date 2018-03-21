@@ -4,5 +4,6 @@ bootJar {
 }
 
 dependencies {
-    compile 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix'
+    compile project(':earth-common'),
+            'org.springframework.cloud:spring-cloud-starter-netflix-hystrix'
 }
