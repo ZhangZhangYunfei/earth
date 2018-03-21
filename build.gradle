@@ -50,6 +50,14 @@ allprojects {
         }
     }
 
+    configurations {
+        all*.exclude group: 'ch.qos.logback'
+        all*.exclude group: 'log4j'
+        all*.exclude module: 'commons-logging'
+        all*.exclude module: 'slf4j-log4j12'
+        all*.exclude module: 'junit'
+    }
+
     dependencies {
         compile 'org.projectlombok:lombok',
                 'org.slf4j:slf4j-api',
@@ -70,7 +78,19 @@ allprojects {
                 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml',
                 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml',
                 'com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2',
-                'com.fasterxml.jackson.module:jackson-module-jaxb-annotations'
+                'com.fasterxml.jackson.module:jackson-module-jaxb-annotations',
+
+                // log facade
+                'org.slf4j:jcl-over-slf4j',
+                'org.slf4j:jul-to-slf4j',
+                'org.slf4j:log4j-over-slf4j',
+                'org.slf4j:slf4j-api',
+
+                // force upgrading because of security breach
+                // http://www.qingpingshan.com/pc/aq/253858.html
+                'org.apache.logging.log4j:log4j-api:2.8.2',
+                'org.apache.logging.log4j:log4j-core:2.8.2',
+                'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
     }
 }
 

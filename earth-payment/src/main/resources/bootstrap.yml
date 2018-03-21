@@ -3,4 +3,4 @@ spring:
     name: payment
   cloud:
     config:
-      uri: http://configserver:8888
+      uri: http://localhost:8888

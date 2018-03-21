@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Constants {
   // session
   public static final String CAPTCHA_PARAMETER_KEY = "captcha";
-  public static final String CAPTCHA_SESSION_KEY = "code";
+  public static final String CAPTCHA_SESSION_KEY = "sessionCaptcha";
   public static final String CAPTCHA_FORMAT_KEY = "jpg";
 
   // role

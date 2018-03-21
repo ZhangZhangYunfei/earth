@@ -16,16 +16,18 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
   @Override
   public Authentication authenticate(Authentication authentication)
       throws AuthenticationException {
-    var details = (CustomWebAuthenticationDetails) authentication.getDetails();
-    String captcha = details.getCaptcha();
-    String captchaInSession = details.getCaptchaInSession();
+    if (authentication.getDetails() instanceof CustomWebAuthenticationDetails) {
+      var details = (CustomWebAuthenticationDetails) authentication.getDetails();
+      String captcha = details.getCaptcha();
+      String captchaInSession = details.getCaptchaInSession();
 
-    if (captcha == null || captchaInSession == null) {
-      throw new CaptchaException("验证码不存在！");
-    }
+      if (captcha == null || captchaInSession == null) {
+        throw new CaptchaException("验证码不存在！");
+      }
 
-    if (!captcha.equals(captchaInSession)) {
-      throw new CaptchaException("验证码错误！");
+      if (!captcha.equals(captchaInSession)) {
+        throw new CaptchaException("验证码错误！");
+      }
     }
 
     //如果后续要有验证密码的provider，这里需要直接返回null

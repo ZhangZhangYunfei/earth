@@ -4,6 +4,28 @@ server:
 sidecar:
   port: 8000
 
+zuul:
+  prefix: /api
+  routes:
+    user:
+      path: /users/**
+      stripPrefix: false
+      sensitiveHeaders: #Cookie,Set-Cookie,Authorization
+    examination:
+      path: /examinations/**
+      stripPrefix: false
+      sensitiveHeaders:
+    merchant:
+      path: /merchants/**
+      stripPrefix: false
+      sensitiveHeaders:
+      serviceId: examination
+    registration:
+      path: /registrations/**
+      stripPrefix: false
+      sensitiveHeaders:
+      serviceId: examination
+
 endpoints:
   restart:
     enabled: true

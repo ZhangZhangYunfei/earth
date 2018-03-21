@@ -8,6 +8,7 @@ import com.yxedu.earth.common.exception.EarthException;
 import com.yxedu.earth.common.security.AuthenticationHelper;
 import com.yxedu.earth.examination.bean.CreateMerchantRequest;
 import com.yxedu.earth.examination.bean.UpdateMerchantRequest;
+import com.yxedu.earth.examination.clients.UserClient;
 import com.yxedu.earth.examination.domain.Merchant;
 import com.yxedu.earth.examination.repository.MerchantRepository;
 import com.yxedu.earth.examination.service.IntegrityService;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Slf4j
@@ -42,10 +45,14 @@ public class MerchantEndpoint {
 
   private final MerchantRepository repository;
   private final IntegrityService integrityService;
+  private final UserClient userClient;
 
-  public MerchantEndpoint(MerchantRepository repository, IntegrityService integrityService) {
+  public MerchantEndpoint(MerchantRepository repository,
+                          IntegrityService integrityService,
+                          UserClient userClient) {
     this.repository = repository;
     this.integrityService = integrityService;
+    this.userClient = userClient;
   }
 
   /**
@@ -114,11 +121,22 @@ public class MerchantEndpoint {
     throw new EarthException("The username is duplicated.");
   }
 
+
   @GetMapping("/{id}")
   public UniformResponse get(@PathVariable Long id) {
     log.info("The user {} is querying merchant {}.", AuthenticationHelper.getId(), id);
     Merchant merchant = repository.findOne(id);
     integrityService.checkMerchant(merchant.getId());
     return UniformResponse.success(merchant);
+  }
+
+  @GetMapping("/hello")
+  @PreAuthorize("isAuthenticated()")
+  public String get2(HttpServletRequest request) {
+    return userClient.getUsers();
+//    log.info("The user {} is querying merchant {}.", AuthenticationHelper.getId(), id);
+//    Merchant merchant = repository.findOne(id);
+//    integrityService.checkMerchant(merchant.getId());
+//    return UniformResponse.success(merchant);
   }
 }
