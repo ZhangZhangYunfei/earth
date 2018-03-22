@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS earth.examination(
 	version bigint null,
 	merchant_id bigint not null,
   subject varchar(64) not null,
+  price DECIMAL(6, 2) NOT NULL DEFAULT 0,
 	requirement varchar(64) not null,
 	description varchar(64) not null,
 	status varchar(16) not null,
