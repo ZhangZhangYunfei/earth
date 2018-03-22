@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Slf4j
@@ -128,15 +126,5 @@ public class MerchantEndpoint {
     Merchant merchant = repository.findOne(id);
     integrityService.checkMerchant(merchant.getId());
     return UniformResponse.success(merchant);
-  }
-
-  @GetMapping("/hello")
-  @PreAuthorize("isAuthenticated()")
-  public String get2(HttpServletRequest request) {
-    return userClient.getUsers();
-//    log.info("The user {} is querying merchant {}.", AuthenticationHelper.getId(), id);
-//    Merchant merchant = repository.findOne(id);
-//    integrityService.checkMerchant(merchant.getId());
-//    return UniformResponse.success(merchant);
   }
 }

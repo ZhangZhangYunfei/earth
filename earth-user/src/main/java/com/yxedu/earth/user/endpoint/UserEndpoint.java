@@ -10,8 +10,6 @@ import com.yxedu.earth.user.bean.RegisterUserRequest;
 import com.yxedu.earth.user.bean.UpdateUserRequest;
 import com.yxedu.earth.user.domain.User;
 import com.yxedu.earth.user.service.UserService;
-import com.yxedu.earth.utils.json.JsonProviderHolder;
-import com.yxedu.earth.utils.json.jackson.JacksonProvider;
 
 import lombok.experimental.var;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import org.springframework.web.bind.support.SessionStatus;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -61,12 +57,6 @@ public class UserEndpoint {
                       DefaultKaptcha kaptcha) {
     this.service = service;
     this.captcha = kaptcha;
-  }
-
-  @GetMapping("/hello/a")
-  @PreAuthorize("isAuthenticated()")
-  public String index2() {
-    return JsonProviderHolder.JACKSON.toJsonString(UniformResponse.success("hello"));
   }
 
   @PreAuthorize("isAuthenticated()")

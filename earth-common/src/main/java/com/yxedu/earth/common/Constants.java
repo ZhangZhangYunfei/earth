@@ -11,6 +11,6 @@ public class Constants {
 
   // role
   public static final String ROLE_EXAMINER = "ROLE_EXAMINEER";
-  public static final String ROLE_EXAMINEE = "ROLE_ADMIN";
+  public static final String ROLE_EXAMINEE = "ROLE_EXAMINEE";
   public static final String ROLE_ADMIN = "ROLE_ADMIN";
 }
