@@ -14,6 +14,17 @@ ribbon:
   eureka:
     enabled: true
 
+# Disable Hystrix or use SEMAPHORE isolation in Feign to use interceptor with ThreadTocal
+feign:
+  hystrix:
+    enabled: true
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE
 
 spring:
   datasource:

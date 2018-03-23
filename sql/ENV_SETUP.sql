@@ -1,5 +1,8 @@
+
+#earth
 #oauth
-create table earth.oauth_access_token
+drop TABLE IF EXISTS earth.oauth_access_token;
+create table IF NOT EXISTS earth.oauth_access_token
 (
 	token_id varchar(256) null,
 	token blob null,
@@ -10,7 +13,8 @@ create table earth.oauth_access_token
 	refresh_token varchar(256) null
 );
 
-create table earth.oauth_client_details
+drop TABLE IF EXISTS earth.oauth_client_details;
+create table IF NOT EXISTS earth.oauth_client_details
 (
 	client_id varchar(60) not null
 		primary key,
@@ -26,13 +30,15 @@ create table earth.oauth_client_details
 	scope varchar(255) null
 );
 
-create table earth.oauth_code
+drop TABLE IF EXISTS earth.oauth_code;
+create table IF NOT EXISTS earth.oauth_code
 (
 	code varchar(256) null,
 	authentication blob null
 );
 
-create table earth.oauth_refresh_token
+drop TABLE IF EXISTS earth.oauth_refresh_token;
+create table IF NOT EXISTS earth.oauth_refresh_token
 (
 	token_id varchar(256) null,
 	token blob null,
@@ -40,7 +46,8 @@ create table earth.oauth_refresh_token
 );
 
 #user
-create table earth.user
+drop TABLE IF EXISTS earth.user;
+create table IF NOT EXISTS earth.user
 (
 	id bigint auto_increment
 		primary key,
@@ -63,12 +70,14 @@ create table earth.user
 		unique (telephone)
 );
 
-CREATE TABLE earth.examination(
+drop TABLE IF EXISTS earth.examination;
+CREATE TABLE IF NOT EXISTS earth.examination(
   id bigint auto_increment
 		primary key,
 	version bigint null,
 	merchant_id bigint not null,
   subject varchar(64) not null,
+  price DECIMAL(6, 2) NOT NULL DEFAULT 0,
 	requirement varchar(64) not null,
 	description varchar(64) not null,
 	status varchar(16) not null,
@@ -80,7 +89,8 @@ CREATE TABLE earth.examination(
 		unique (merchant_id, subject)
 );
 
-CREATE TABLE earth.merchant(
+drop TABLE IF EXISTS earth.merchant;
+CREATE TABLE IF NOT EXISTS earth.merchant(
   id bigint auto_increment
 		primary key,
 	version bigint null,
@@ -98,7 +108,8 @@ CREATE TABLE earth.merchant(
 		unique (name)
 );
 
-CREATE TABLE earth.registration(
+drop TABLE IF EXISTS earth.registration;
+CREATE TABLE IF NOT EXISTS earth.registration(
   id bigint auto_increment
 		primary key,
 	version bigint null,
@@ -119,7 +130,8 @@ CREATE TABLE earth.registration(
 		unique (examination_id, examinee_id)
 );
 
-CREATE TABLE earth.merchant_employee(
+drop TABLE IF EXISTS earth.merchant_employee;
+CREATE TABLE IF NOT EXISTS earth.merchant_employee(
   id bigint auto_increment
 		primary key,
 	version bigint null,

@@ -25,18 +25,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import org.springframework.web.bind.support.SessionStatus;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 @Slf4j
@@ -51,7 +51,7 @@ public class UserEndpoint {
   private final DefaultKaptcha captcha;
 
   /**
-   * Make check style happy.
+   * Make checkstyle happy.
    */
   public UserEndpoint(UserService service,
                       DefaultKaptcha kaptcha) {
@@ -71,24 +71,32 @@ public class UserEndpoint {
    */
   @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public UniformResponse register(@RequestBody @Valid RegisterUserRequest user,
-                                  @SessionAttribute(Constants.CAPTCHA_SESSION_KEY) String captcha,
-                                  SessionStatus status) {
-    // TODO:通过短信发送
-    log.info("Registering the user '{}'...", user.getIdNo());
-    if (!user.getCaptcha().equals(captcha)) {
-      log.error("The captcha {} is not equal to {}...", user.getCaptcha(), captcha);
-      throw new EarthException("The captcha is not right.");
+                                  HttpSession session) {
+    try {
+      // TODO:通过短信发送
+      log.info("Registering the user '{}'...", user.getIdNo());
+      Object captcha = session.getAttribute(Constants.CAPTCHA_SESSION_KEY);
+      if (Objects.isNull(captcha)) {
+        log.error("The captcha is not found.");
+        throw new EarthException("The captcha is not found, please get captcha first.");
+      }
+      if (!user.getCaptcha().equals(captcha)) {
+        log.error("The captcha {} is not equal to {}...", user.getCaptcha(), captcha);
+        throw new EarthException("The captcha is not right.");
+      }
+      String id = service.registerUser(user.getIdNo(), user.getTelephone(), user.getUsername(),
+          user.getPassword(), Collections.singletonList(Constants.ROLE_EXAMINEE))
+          .getId().toString();
+      log.info("Registered the user '{}'.", user.getIdNo());
+
+      Map<String, String> resultMap = new HashMap<>(2);
+      resultMap.put(KEY_ID, id);
+      resultMap.put(KEY_USERNAME, user.getIdNo());
+
+      return UniformResponse.success(resultMap);
+    } finally {
+       session.removeAttribute(Constants.CAPTCHA_SESSION_KEY);
     }
-    String id = service.registerUser(user.getIdNo(), user.getTelephone(), user.getUsername(),
-        user.getPassword(), Collections.singletonList(Constants.ROLE_EXAMINEE))
-        .getId().toString();
-    log.info("Registered the user '{}'.", user.getIdNo());
-
-    Map<String, String> resultMap = new HashMap<>(2);
-    resultMap.put(KEY_ID, id);
-    resultMap.put(KEY_USERNAME, user.getIdNo());
-
-    return UniformResponse.success(resultMap);
   }
 
   /**

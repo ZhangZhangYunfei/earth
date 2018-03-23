@@ -8,6 +8,7 @@ import com.yxedu.earth.common.exception.EarthException;
 import com.yxedu.earth.common.security.AuthenticationHelper;
 import com.yxedu.earth.examination.bean.CreateMerchantRequest;
 import com.yxedu.earth.examination.bean.UpdateMerchantRequest;
+import com.yxedu.earth.examination.clients.UserClient;
 import com.yxedu.earth.examination.domain.Merchant;
 import com.yxedu.earth.examination.repository.MerchantRepository;
 import com.yxedu.earth.examination.service.IntegrityService;
@@ -42,10 +43,14 @@ public class MerchantEndpoint {
 
   private final MerchantRepository repository;
   private final IntegrityService integrityService;
+  private final UserClient userClient;
 
-  public MerchantEndpoint(MerchantRepository repository, IntegrityService integrityService) {
+  public MerchantEndpoint(MerchantRepository repository,
+                          IntegrityService integrityService,
+                          UserClient userClient) {
     this.repository = repository;
     this.integrityService = integrityService;
+    this.userClient = userClient;
   }
 
   /**
@@ -113,6 +118,7 @@ public class MerchantEndpoint {
     log.error("The name '{}' is already existed...", request.getName());
     throw new EarthException("The username is duplicated.");
   }
+
 
   @GetMapping("/{id}")
   public UniformResponse get(@PathVariable Long id) {

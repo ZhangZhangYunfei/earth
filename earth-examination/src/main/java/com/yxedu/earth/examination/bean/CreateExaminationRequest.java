@@ -5,6 +5,9 @@ import lombok.Setter;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import java.math.BigDecimal;
+
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 
 @Getter
@@ -21,4 +24,8 @@ public class CreateExaminationRequest {
 
   @NotEmpty
   private String description;
+
+  @NotNull
+  @Digits(integer = 6, fraction = 2)
+  private BigDecimal price;
 }
