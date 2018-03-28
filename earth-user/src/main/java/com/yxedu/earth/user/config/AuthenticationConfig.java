@@ -2,6 +2,9 @@ package com.yxedu.earth.user.config;
 
 import com.yxedu.earth.common.security.EarthUserDetails;
 import com.yxedu.earth.user.config.bean.CustomAuthenticationProvider;
+import com.yxedu.earth.user.domain.MerchantEmployee;
+import com.yxedu.earth.user.repository.MerchantEmployeeRepository;
+import com.yxedu.earth.user.repository.MerchantRepository;
 import com.yxedu.earth.user.repository.UserRepository;
 import com.yxedu.earth.utils.SecurityExtUtils;
 import com.yxedu.earth.utils.StringUtils;
@@ -27,30 +30,25 @@ import java.util.Optional;
 public class AuthenticationConfig {
 
   @Autowired
-  protected void configure(AuthenticationManagerBuilder builder, UserRepository userRepository) {
+  protected void configure(AuthenticationManagerBuilder builder,
+                           UserRepository userRepository,
+                           MerchantRepository merchantRepository,
+                           MerchantEmployeeRepository employeeRepository) {
     try {
       builder
           // register our own provider for captcha
           .authenticationProvider(new CustomAuthenticationProvider())
           .userDetailsService(username -> {
             Optional<com.yxedu.earth.user.domain.User> user = userRepository.findByIdNo(username);
-            if (user.isPresent()) {
-              return new EarthUserDetails(user.get().getId(),
-                  user.get().getIdNo(),
-                  user.get().getTelephone(),
-                  user.get().getUsername(),
-                  StringUtils.joinWithComma(
-                      Arrays.asList(user.get().getPasswordHash(), user.get().getSalt())),
-                  user.get().isEnabled(),
-                  user.get().isAccountNonExpired(),
-                  user.get().isCredentialsNonExpired(),
-                  user.get().isAccountNonLocked(),
-                  AuthorityUtils.createAuthorityList(
-                      user.get().getAuthorities().trim().split(StringUtils.COMMA)));
+            if (!user.isPresent()) {
+              user = userRepository.findByTelephone(username);
             }
 
-            user = userRepository.findByTelephone(username);
             if (user.isPresent()) {
+              Long merchantId = employeeRepository.findByEmployeeId(user.get().getId())
+                  .map(MerchantEmployee::getMerchantId)
+                  .orElse(null);
+
               return new EarthUserDetails(user.get().getId(),
                   user.get().getIdNo(),
                   user.get().getTelephone(),
@@ -62,7 +60,8 @@ public class AuthenticationConfig {
                   user.get().isCredentialsNonExpired(),
                   user.get().isAccountNonLocked(),
                   AuthorityUtils.createAuthorityList(
-                      user.get().getAuthorities().trim().split(StringUtils.COMMA)));
+                      user.get().getAuthorities().trim().split(StringUtils.COMMA)),
+                  merchantId);
             }
 
             log.error("The username {} can is not existed.", username);

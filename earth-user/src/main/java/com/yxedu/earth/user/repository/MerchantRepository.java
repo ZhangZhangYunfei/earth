@@ -1,6 +1,6 @@
-package com.yxedu.earth.examination.repository;
+package com.yxedu.earth.user.repository;
 
-import com.yxedu.earth.examination.domain.Merchant;
+import com.yxedu.earth.user.domain.Merchant;
 
 import org.springframework.data.repository.CrudRepository;
 

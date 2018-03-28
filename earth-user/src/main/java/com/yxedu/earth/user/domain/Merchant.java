@@ -1,4 +1,4 @@
-package com.yxedu.earth.examination.domain;
+package com.yxedu.earth.user.domain;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

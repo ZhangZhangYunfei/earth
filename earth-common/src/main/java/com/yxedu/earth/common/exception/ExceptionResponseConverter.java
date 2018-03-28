@@ -9,6 +9,9 @@ import org.springframework.security.access.AccessDeniedException;
 @Slf4j
 public class ExceptionResponseConverter {
 
+  /**
+   * Translate exception to uniform response.
+   */
   public static UniformResponse get(Exception err) {
     log.error("Handling error: " + err.getClass().getSimpleName() + ", " + err.getMessage());
     if (err instanceof EarthException) {

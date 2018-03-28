@@ -11,7 +11,6 @@ import com.yxedu.earth.examination.bean.UpdateExaminationRequest;
 import com.yxedu.earth.examination.domain.Examination;
 import com.yxedu.earth.examination.domain.ExaminationStatus;
 import com.yxedu.earth.examination.repository.ExaminationRepository;
-import com.yxedu.earth.examination.service.IntegrityService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,11 +42,9 @@ public class ExaminationEndpoint {
 
 
   private final ExaminationRepository repository;
-  private final IntegrityService integrityService;
 
-  public ExaminationEndpoint(ExaminationRepository repository, IntegrityService integrityService) {
+  public ExaminationEndpoint(ExaminationRepository repository) {
     this.repository = repository;
-    this.integrityService = integrityService;
   }
 
   /**
@@ -63,7 +60,7 @@ public class ExaminationEndpoint {
       log.error("The examination '{}' is not exist...", request.getId());
       throw new EarthException("The examination is is not existed.");
     }
-    integrityService.checkMerchant(examination.getMerchantId());
+    AuthenticationHelper.checkMerchantIntegrity(examination.getMerchantId());
 
     if (!Strings.isNullOrEmpty(request.getSubject())) {
       examination.setSubject(request.getSubject());
@@ -88,11 +85,11 @@ public class ExaminationEndpoint {
   /**
    * Create an examination.
    */
-  @Secured({Constants.ROLE_ADMIN, Constants.ROLE_EXAMINEE})
+  @Secured({Constants.ROLE_ADMIN, Constants.ROLE_EXAMINER})
   @PostMapping
   public UniformResponse create(@RequestBody @Valid CreateExaminationRequest request) {
     log.info("The user {} is creating examination.", AuthenticationHelper.getId());
-    integrityService.checkMerchant(request.getMerchantId());
+    AuthenticationHelper.checkMerchantIntegrity(request.getMerchantId());
 
     Examination examination = new Examination();
     BeanUtils.copyProperties(request, examination);
@@ -110,11 +107,13 @@ public class ExaminationEndpoint {
     return UniformResponse.success(resultMap);
   }
 
+  /**
+   * Get the examination.
+   */
   @GetMapping("/{id}")
   public UniformResponse get(@PathVariable Long id) {
     log.info("The user {} is querying examination {}.", AuthenticationHelper.getId(), id);
     Examination examination = repository.findOne(id);
-    integrityService.checkMerchant(examination.getMerchantId());
     return UniformResponse.success(examination);
   }
 

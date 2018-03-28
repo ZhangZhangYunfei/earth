@@ -95,7 +95,7 @@ public class UserEndpoint {
 
       return UniformResponse.success(resultMap);
     } finally {
-       session.removeAttribute(Constants.CAPTCHA_SESSION_KEY);
+      session.removeAttribute(Constants.CAPTCHA_SESSION_KEY);
     }
   }
 

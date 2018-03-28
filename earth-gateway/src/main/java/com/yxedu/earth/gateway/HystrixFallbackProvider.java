@@ -1,6 +1,8 @@
 package com.yxedu.earth.gateway;
 
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
+import com.yxedu.earth.utils.json.JsonProviderHolder;
+
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,9 +12,11 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
-public class HystrixFallbackProvider implements ZuulFallbackProvider {
+public class HystrixFallbackProvider implements FallbackProvider {
   @Override
   public String getRoute() {
     return "*";
@@ -42,7 +46,13 @@ public class HystrixFallbackProvider implements ZuulFallbackProvider {
 
       @Override
       public InputStream getBody() throws IOException {
-        return new ByteArrayInputStream("fallback".getBytes());
+        Map<String, String> map = new HashMap<>(3);
+        map.put("status", "FAILED");
+        map.put("code", "-1");
+        map.put("message", "执行异常！");
+
+        return new ByteArrayInputStream(
+            JsonProviderHolder.JACKSON.toJsonString(map).getBytes());
       }
 
       @Override
@@ -52,5 +62,10 @@ public class HystrixFallbackProvider implements ZuulFallbackProvider {
         return headers;
       }
     };
+  }
+
+  @Override
+  public ClientHttpResponse fallbackResponse(Throwable cause) {
+    return fallbackResponse();
   }
 }

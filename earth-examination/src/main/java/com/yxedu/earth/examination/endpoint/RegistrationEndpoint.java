@@ -6,10 +6,13 @@ import com.yxedu.earth.common.UniformResponse;
 import com.yxedu.earth.common.security.AuthenticationHelper;
 import com.yxedu.earth.examination.bean.CreateRegistrationRequest;
 import com.yxedu.earth.examination.bean.UpdateRegistrationRequest;
+import com.yxedu.earth.examination.clients.PaymentClient;
+import com.yxedu.earth.examination.clients.PaymentOrderRequest;
+import com.yxedu.earth.examination.domain.Examination;
 import com.yxedu.earth.examination.domain.Registration;
 import com.yxedu.earth.examination.domain.RegistrationStatus;
+import com.yxedu.earth.examination.repository.ExaminationRepository;
 import com.yxedu.earth.examination.repository.RegistrationRepository;
-import com.yxedu.earth.examination.service.IntegrityService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -40,12 +44,18 @@ public class RegistrationEndpoint {
   private static final String KEY_ID = "id";
 
   private final RegistrationRepository repository;
-  private final IntegrityService integrityService;
+  private final ExaminationRepository examinationRepository;
+  private final PaymentClient paymentClient;
 
+  /**
+   * Constructor.
+   */
   public RegistrationEndpoint(RegistrationRepository repository,
-                              IntegrityService integrityService) {
+                              ExaminationRepository examinationRepository,
+                              PaymentClient paymentClient) {
     this.repository = repository;
-    this.integrityService = integrityService;
+    this.examinationRepository = examinationRepository;
+    this.paymentClient = paymentClient;
   }
 
   /**
@@ -57,7 +67,9 @@ public class RegistrationEndpoint {
     log.info("The user {} is updating registration {}.",
         AuthenticationHelper.getId(), request.getId());
     Registration registration = repository.findOne(request.getId());
-    integrityService.checkExaminee(registration.getExamineeId(), request.getId());
+    Examination examination = examinationRepository.findOne(registration.getExaminationId());
+    AuthenticationHelper.checkExamineeIntegrity(registration.getExamineeId(),
+        examination.getMerchantId());
 
     if (!Strings.isNullOrEmpty(request.getOthers())) {
       registration.setOthers(request.getOthers());
@@ -100,12 +112,74 @@ public class RegistrationEndpoint {
     return UniformResponse.success(resultMap);
   }
 
+  /**
+   * Get an registration.
+   */
   @GetMapping("/{id}")
   @PreAuthorize("isAuthenticated()")
   public UniformResponse get(@PathVariable Long id) {
     log.info("The user {} is querying registration {}.", AuthenticationHelper.getId(), id);
     Registration registration = repository.findOne(id);
-    integrityService.checkExaminee(registration.getExamineeId(), registration.getId());
+    Examination examination = examinationRepository.findOne(registration.getExaminationId());
+    AuthenticationHelper.checkExamineeIntegrity(registration.getExamineeId(),
+        examination.getMerchantId());
+
+    //支付中的报名查询支付订单
+    if (registration.getStatus() == RegistrationStatus.PAYING) {
+      UniformResponse response = paymentClient.getOrder(examination.getMerchantId(),
+          registration.getPayNo());
+
+      if ("SUCCESS".equals(response.getStatus())
+          && response.getContent() instanceof Map) {
+        Map content = (Map) response.getContent(); // 终态成功或者失败
+        if ("FAILED".equals(content.get("status")) || "SUCCEED".equals(content.get("status"))) {
+          registration.setStatus("SUCCEED".equals(content.get("status"))
+              ? RegistrationStatus.PAID : RegistrationStatus.CREATED);
+          registration = repository.save(registration);
+        }
+      }
+    }
     return UniformResponse.success(registration);
+  }
+
+  /**
+   * Get pay url of registration.
+   */
+  @PostMapping("/{id}/payUrl")
+  @PreAuthorize("isAuthenticated()")
+  public UniformResponse getUrl(@PathVariable Long id, @RequestParam("paymentType") String type) {
+    log.info("The user {} is getting pay url of registration {}.",
+        AuthenticationHelper.getId(), id);
+    Registration registration = repository.findOne(id);
+    Examination examination = examinationRepository.findOne(registration.getExaminationId());
+    AuthenticationHelper.checkExamineeIntegrity(registration.getExamineeId(),
+        examination.getMerchantId());
+
+    if (registration.getStatus() == RegistrationStatus.CREATED
+        || registration.getStatus() == RegistrationStatus.PAYING) {
+      PaymentOrderRequest request = PaymentOrderRequest.builder()
+          .amount(examination.getPrice())
+          .description(examination.getDescription())
+          .merchantId(examination.getMerchantId())
+          .no(Strings.isNullOrEmpty(registration.getPayNo())
+              ? Long.toString(System.nanoTime())
+              : registration.getPayNo())
+          .paymentType(type)
+          .productId(registration.getExaminationId().toString())
+          .userId(registration.getExamineeId())
+          .build();
+      UniformResponse response = paymentClient.getPayUrl(request);
+      if ("SUCCESS".equals(response.getStatus())) {
+        registration.setStatus(RegistrationStatus.PAYING);
+        registration.setPayNo(request.getNo());
+        repository.save(registration);
+      }
+      log.info("The user {} gotten pay url of registration {}.",
+          AuthenticationHelper.getId(), id);
+      return response;
+    }
+    log.info("The user {} failed to get pay url of registration {}.",
+        AuthenticationHelper.getId(), id);
+    return UniformResponse.failed("-1", "不可以重复支付！");
   }
 }

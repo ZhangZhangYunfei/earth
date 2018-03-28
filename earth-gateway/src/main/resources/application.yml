@@ -4,6 +4,12 @@ server:
 sidecar:
   port: 8000
 
+ribbon:
+  ReadTimeout: 10000
+  ConnectTimeout: 10000
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 1
+
 zuul:
   prefix: /api
   routes:
@@ -11,20 +17,35 @@ zuul:
       path: /users/**
       stripPrefix: false
       sensitiveHeaders: #Cookie,Set-Cookie,Authorization
-    examination:
-      path: /examinations/**
-      stripPrefix: false
-      sensitiveHeaders:
     merchant:
       path: /merchants/**
       stripPrefix: false
       sensitiveHeaders:
-      serviceId: examination
+      serviceId: user
+    employee:
+      path: /employees/**
+      stripPrefix: false
+      sensitiveHeaders:
+      serviceId: user
+    examination:
+      path: /examinations/**
+      stripPrefix: false
+      sensitiveHeaders:
     registration:
       path: /registrations/**
       stripPrefix: false
       sensitiveHeaders:
       serviceId: examination
+    order:
+      path: /orders/**
+      stripPrefix: false
+      sensitiveHeaders:
+      serviceId: payment
+    secret:
+      path: /secrets/**
+      stripPrefix: false
+      sensitiveHeaders:
+      serviceId: payment
 
 endpoints:
   restart:

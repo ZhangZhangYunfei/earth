@@ -4,6 +4,7 @@ bootJar {
 }
 
 dependencies {
-  compile 'org.springframework.cloud:spring-cloud-starter-netflix-zuul',
-          'org.springframework.cloud:spring-cloud-netflix-sidecar'
+    compile project(':earth-utils'),
+            'org.springframework.cloud:spring-cloud-starter-netflix-zuul',
+            'org.springframework.cloud:spring-cloud-netflix-sidecar'
 }

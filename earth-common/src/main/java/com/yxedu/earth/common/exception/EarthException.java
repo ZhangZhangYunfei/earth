@@ -36,6 +36,13 @@ public class EarthException extends RuntimeException {
   /**
    * Make checkstyle happy.
    */
+  public EarthException(String message,Throwable cause) {
+    this(message, -1, cause);
+  }
+
+  /**
+   * Make checkstyle happy.
+   */
   public EarthException(int code, Throwable cause) {
     this("", code, cause);
   }

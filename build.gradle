@@ -55,7 +55,6 @@ allprojects {
         all*.exclude group: 'log4j'
         all*.exclude module: 'commons-logging'
         all*.exclude module: 'slf4j-log4j12'
-        all*.exclude module: 'junit'
     }
 
     dependencies {
@@ -105,12 +104,17 @@ configure(subprojects.findAll() { it.name != 'earth-utils' && it.name != 'earth-
                 'org.apache.logging.log4j:log4j-web:2.8.2',
                 'org.aspectj:aspectjweaver'
 
-        testCompile 'org.springframework.boot:spring-boot-starter-test'
+        testCompile 'org.springframework.boot:spring-boot-starter-test',
+                'com.h2database:h2',
+                'io.rest-assured:rest-assured:3.0.3',
+                'com.github.tomakehurst:wiremock:2.6.0'
     }
 }
 
 // Services
-configure(subprojects.findAll() { it.name == 'earth-user' || it.name == 'earth-payment' || it.name == 'earth-examination' }) {
+configure(subprojects.findAll() {
+    it.name == 'earth-user' || it.name == 'earth-payment' || it.name == 'earth-examination'
+}) {
     dependencies {
         compile project(':earth-utils'),
                 project(':earth-common'),
