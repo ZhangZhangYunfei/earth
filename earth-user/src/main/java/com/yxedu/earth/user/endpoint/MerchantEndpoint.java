@@ -1,4 +1,4 @@
-package com.yxedu.earth.examination.endpoint;
+package com.yxedu.earth.user.endpoint;
 
 import com.google.common.base.Strings;
 
@@ -6,12 +6,10 @@ import com.yxedu.earth.common.Constants;
 import com.yxedu.earth.common.UniformResponse;
 import com.yxedu.earth.common.exception.EarthException;
 import com.yxedu.earth.common.security.AuthenticationHelper;
-import com.yxedu.earth.examination.bean.CreateMerchantRequest;
-import com.yxedu.earth.examination.bean.UpdateMerchantRequest;
-import com.yxedu.earth.examination.clients.UserClient;
-import com.yxedu.earth.examination.domain.Merchant;
-import com.yxedu.earth.examination.repository.MerchantRepository;
-import com.yxedu.earth.examination.service.IntegrityService;
+import com.yxedu.earth.user.bean.CreateMerchantRequest;
+import com.yxedu.earth.user.bean.UpdateMerchantRequest;
+import com.yxedu.earth.user.domain.Merchant;
+import com.yxedu.earth.user.repository.MerchantRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,15 +40,9 @@ public class MerchantEndpoint {
   private static final String KEY_ID = "id";
 
   private final MerchantRepository repository;
-  private final IntegrityService integrityService;
-  private final UserClient userClient;
 
-  public MerchantEndpoint(MerchantRepository repository,
-                          IntegrityService integrityService,
-                          UserClient userClient) {
+  public MerchantEndpoint(MerchantRepository repository) {
     this.repository = repository;
-    this.integrityService = integrityService;
-    this.userClient = userClient;
   }
 
   /**
@@ -60,7 +52,7 @@ public class MerchantEndpoint {
   @PutMapping
   public UniformResponse update(@RequestBody @Valid UpdateMerchantRequest request) {
     log.info("The user {} is updating merchant {}.", AuthenticationHelper.getId(), request.getId());
-    integrityService.checkMerchant(request.getId());
+    AuthenticationHelper.checkMerchantIntegrity(request.getId());
 
     Merchant merchant = repository.findOne(request.getId());
     if (merchant == null) {
@@ -120,11 +112,13 @@ public class MerchantEndpoint {
   }
 
 
+  /**
+   * Get a merchant.
+   */
   @GetMapping("/{id}")
   public UniformResponse get(@PathVariable Long id) {
     log.info("The user {} is querying merchant {}.", AuthenticationHelper.getId(), id);
     Merchant merchant = repository.findOne(id);
-    integrityService.checkMerchant(merchant.getId());
     return UniformResponse.success(merchant);
   }
 }

@@ -5,10 +5,12 @@ import lombok.Setter;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Setter
 public class CreateRegistrationRequest {
-  @NotEmpty
+  @NotNull
   private Long examinationId;
 
   @NotEmpty

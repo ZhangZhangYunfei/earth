@@ -1,24 +1,26 @@
-package com.yxedu.earth.examination.bean;
+package com.yxedu.earth.user.bean;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Getter
 @Setter
-public class UpdateMerchantRequest {
-  @NotNull
-  private Long id;
-
+public class CreateMerchantRequest {
+  @NotEmpty
   private String name;
 
+  @NotEmpty
   private String telephone;
 
+  @NotEmpty
   private String address;
 
+  @NotEmpty
   private String description;
 
+  @NotEmpty
   private String contactPerson;
 
   private boolean disable;

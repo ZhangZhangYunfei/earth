@@ -51,6 +51,9 @@ public class Registration {
   @Column(nullable = false, length = 60)
   private String others;
 
+  @Column(name = "pay_no", length = 32)
+  private String payNo;
+
   @Column(nullable = false, length = 16)
   @Enumerated(EnumType.STRING)
   private RegistrationStatus status;

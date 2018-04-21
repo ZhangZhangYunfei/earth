@@ -45,103 +45,156 @@ create table IF NOT EXISTS earth.oauth_refresh_token
 	authentication blob null
 );
 
-#user
-drop TABLE IF EXISTS earth.user;
-create table IF NOT EXISTS earth.user
+DROP TABLE IF EXISTS earth.user;
+CREATE TABLE IF NOT EXISTS earth.user
 (
-	id bigint auto_increment
-		primary key,
-	version bigint null,
-	id_no varchar(60) not null,
-	telephone varchar(13) not null,
-	username varchar(60) not null,
-	password_hash varchar(64) not null,
-	salt varchar(16) not null,
-	authorities varchar(64) not null,
-	created_time datetime(6) null,
-	updated_time datetime(6) null,
-	account_non_expired char default 'Y' not null,
-	account_non_locked char default 'Y' not null,
-	credentials_non_expired char default 'Y' not null,
-	enabled char default 'Y' not null,
-	constraint uniq_id_no
-		unique (id_no),
-	constraint uniq_telephone
-		unique (telephone)
+  id                      BIGINT AUTO_INCREMENT
+    PRIMARY KEY,
+  version BIGINT                           NULL,
+  id_no   VARCHAR(60) NOT NULL,
+  telephone VARCHAR(13) NOT NULL,
+  username  VARCHAR(60) NOT NULL,
+  password_hash VARCHAR(64) NOT NULL,
+  salt          VARCHAR(16) NOT NULL,
+  authorities   VARCHAR(64) NOT NULL,
+  created_time  DATETIME(6) NULL,
+  updated_time  DATETIME(6) NULL,
+  account_non_expired CHAR DEFAULT 'Y' NOT NULL,
+  account_non_locked  CHAR DEFAULT 'Y' NOT NULL,
+  credentials_non_expired CHAR DEFAULT 'Y' NOT NULL,
+  enabled                 CHAR DEFAULT 'Y' NOT NULL,
+  CONSTRAINT uniq_id_no
+  UNIQUE (id_no),
+  CONSTRAINT uniq_telephone
+  UNIQUE (telephone)
 );
 
-drop TABLE IF EXISTS earth.examination;
-CREATE TABLE IF NOT EXISTS earth.examination(
-  id bigint auto_increment
-		primary key,
-	version bigint null,
-	merchant_id bigint not null,
-  subject varchar(64) not null,
-  price DECIMAL(6, 2) NOT NULL DEFAULT 0,
-	requirement varchar(64) not null,
-	description varchar(64) not null,
-	status varchar(16) not null,
+DROP TABLE IF EXISTS earth.merchant;
+CREATE TABLE IF NOT EXISTS earth.merchant (
+  id             BIGINT AUTO_INCREMENT
+    PRIMARY KEY,
+  version BIGINT             NULL,
 
-	created_time datetime(6) null,
-	updated_time datetime(6) null,
+  name    VARCHAR(64) NOT NULL,
+  address VARCHAR(255) NOT NULL,
+  telephone VARCHAR(13) NOT NULL,
+  description VARCHAR(64) NOT NULL,
+  contact_person VARCHAR(64) NOT NULL,
 
-	constraint uniq_merchant_id_subject
-		unique (merchant_id, subject)
+  created_time   DATETIME(6) NULL,
+  updated_time   DATETIME(6) NULL,
+
+  CONSTRAINT uniq_merchant_name
+  UNIQUE (name)
 );
 
-drop TABLE IF EXISTS earth.merchant;
-CREATE TABLE IF NOT EXISTS earth.merchant(
-  id bigint auto_increment
-		primary key,
-	version bigint null,
+DROP TABLE IF EXISTS earth.merchant_employee;
+CREATE TABLE IF NOT EXISTS earth.merchant_employee (
+  id           BIGINT AUTO_INCREMENT
+    PRIMARY KEY,
+  version BIGINT           NULL,
 
-  name varchar(64) not null,
-	address varchar(255) not null,
-	telephone varchar(13) not null,
-	description varchar(64) not null,
-  contact_person varchar(64) not null,
+  merchant_id BIGINT NOT NULL,
+  employee_id BIGINT NOT NULL,
 
-	created_time datetime(6) null,
-	updated_time datetime(6) null,
+  created_time DATETIME(6) NULL,
+  updated_time DATETIME(6) NULL,
 
-	constraint uniq_merchant_name
-		unique (name)
+  CONSTRAINT uniq_merchant_employee
+  UNIQUE (merchant_id, employee_id)
 );
 
-drop TABLE IF EXISTS earth.registration;
-CREATE TABLE IF NOT EXISTS earth.registration(
-  id bigint auto_increment
-		primary key,
-	version bigint null,
+DROP TABLE IF EXISTS earth.registration;
+CREATE TABLE IF NOT EXISTS earth.registration (
+  id                 BIGINT AUTO_INCREMENT
+    PRIMARY KEY,
+  version BIGINT                  NULL,
 
-  examination_id bigint not null,
-	examinee_id bigint not null,
-	examinee_id_no varchar(60) not null,
-	examinee_telephone varchar(13) not null,
-  examinee_name varchar(60) not null,
+  examination_id BIGINT NOT NULL,
+  examinee_id    BIGINT NOT NULL,
+  examinee_id_no VARCHAR(60) NOT NULL,
+  examinee_telephone VARCHAR(13) NOT NULL,
+  examinee_name      VARCHAR(60) NOT NULL,
 
-  others varchar(255) not null,
-  status varchar(16) not null,
+  others             VARCHAR(255) NOT NULL,
+  status             VARCHAR(16)  NOT NULL,
 
-	created_time datetime(6) null,
-	updated_time datetime(6) null,
+  created_time       DATETIME(6)  NULL,
+  updated_time       DATETIME(6)  NULL,
 
-	constraint uniq_examination_examinee
-		unique (examination_id, examinee_id)
+  CONSTRAINT uniq_examination_examinee
+  UNIQUE (examination_id, examinee_id)
 );
 
-drop TABLE IF EXISTS earth.merchant_employee;
-CREATE TABLE IF NOT EXISTS earth.merchant_employee(
-  id bigint auto_increment
-		primary key,
-	version bigint null,
+ALTER TABLE earth.registration ADD COLUMN pay_no VARCHAR(32);
 
-  merchant_id bigint not null,
-	employee_id bigint not null,
 
-	created_time datetime(6) null,
-	updated_time datetime(6) null,
+DROP TABLE IF EXISTS earth.examination;
+CREATE TABLE IF NOT EXISTS earth.examination (
+  id           BIGINT                 AUTO_INCREMENT
+    PRIMARY KEY,
+  version BIGINT            NULL,
+  merchant_id BIGINT NOT NULL,
+  subject     VARCHAR(64) NOT NULL,
+  requirement VARCHAR(64) NOT NULL,
+  price       DECIMAL(6, 2) NOT NULL DEFAULT 0,
+  description VARCHAR(64)   NOT NULL,
+  status      VARCHAR(16)   NOT NULL,
 
-	constraint uniq_merchant_employee
-		unique (merchant_id, employee_id)
+  created_time DATETIME(6)  NULL,
+  updated_time DATETIME(6)  NULL,
+
+  CONSTRAINT uniq_merchant_id_subject
+  UNIQUE (merchant_id, subject)
+);
+
+DROP TABLE IF EXISTS earth.order;
+DROP TABLE IF EXISTS earth.transaction;
+CREATE TABLE IF NOT EXISTS earth.transaction (
+  id            BIGINT AUTO_INCREMENT
+    PRIMARY KEY,
+  version BIGINT            NULL,
+
+  merchant_id BIGINT NOT NULL,
+  no          VARCHAR(32) NOT NULL,
+  user_id     BIGINT      NOT NULL,
+  amount      DECIMAL(6, 2) NOT NULL,
+  status      VARCHAR(16)   NOT NULL,
+  payment_type VARCHAR(16)  NOT NULL,
+
+  code         VARCHAR(64),
+  message      VARCHAR(255),
+
+  #callback_url  VARCHAR(128) NOT NULL,
+  product_id    VARCHAR(64)  NOT NULL,
+  description  VARCHAR(128) NOT NULL,
+  pay_url    VARCHAR(255),
+
+  created_time DATETIME(6)  NULL,
+  executed_time DATETIME(6) NULL,
+  updated_time  DATETIME(6) NULL,
+
+  CONSTRAINT uniq_merchant_id_no
+  UNIQUE (merchant_id, no)
+);
+
+
+DROP TABLE IF EXISTS earth.secret;
+CREATE TABLE IF NOT EXISTS earth.secret (
+  id           BIGINT AUTO_INCREMENT
+    PRIMARY KEY,
+  version BIGINT            NULL,
+
+  merchant_id BIGINT NOT NULL,
+  merchant_no VARCHAR(32) NOT NULL,
+  type        VARCHAR(16) NOT NULL,
+
+  app_id      VARCHAR(128) NOT NULL,
+  api_key     VARCHAR(1000) NOT NULL,
+
+  created_time DATETIME(6)  NOT NULL,
+  updated_time DATETIME(6)  NOT NULL,
+
+  CONSTRAINT uniq_merchant_id_type
+  UNIQUE (merchant_id, type)
 );

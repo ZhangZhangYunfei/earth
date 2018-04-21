@@ -35,3 +35,19 @@ jedis:
     max-idle: 50
     max-total: 200
     max-wait-millis: 5000
+
+
+--- # HTTP Client Preferences
+http-client:
+  max-total: 200
+  max-per-route: 20
+  timeout:
+    connect: 30000
+    request: 30000
+    socket: 30000
+  keep-alive:
+    duration: 30000
+
+channel:
+  wechatpay:
+    url: https://api.mch.weixin.qq.com

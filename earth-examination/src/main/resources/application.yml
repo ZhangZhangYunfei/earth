@@ -16,6 +16,11 @@ ribbon:
 
 # Disable Hystrix or use SEMAPHORE isolation in Feign to use interceptor with ThreadTocal
 feign:
+  client:
+    config:
+      feignName:
+        connectTimeout: 30000
+        readTimeout: 30000
   hystrix:
     enabled: true
 

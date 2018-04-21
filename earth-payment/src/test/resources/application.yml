@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    max-active: 50
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+
+--- # Jedis Pool Preferences
+jedis:
+  pool:
+    max-idle: 50
+    max-total: 200
+    max-wait-millis: 5000
+
+
+--- # HTTP Client Preferences
+http-client:
+  max-total: 200
+  max-per-route: 20
+  timeout:
+    connect: 30000
+    request: 30000
+    socket: 30000
+  keep-alive:
+    duration: 30000
+
+channel:
+  wechatpay:
+    url: http://localhost:8089

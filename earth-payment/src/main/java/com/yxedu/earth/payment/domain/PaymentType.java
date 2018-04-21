@@ -1,4 +1,4 @@
-package com.yxedu.earth.payment.bean;
+package com.yxedu.earth.payment.domain;
 
 import lombok.Getter;
 

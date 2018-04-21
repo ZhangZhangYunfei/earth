@@ -1,6 +1,5 @@
 package com.yxedu.earth.payment.config;
 
-
 import com.alibaba.druid.pool.DruidAbstractDataSource;
 import com.alibaba.druid.pool.DruidDataSource;
 
@@ -13,9 +12,10 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import redis.clients.jedis.JedisPoolConfig;
+
 import javax.sql.DataSource;
 
-import redis.clients.jedis.JedisPoolConfig;
 
 @EnableJpaRepositories("com.yxedu.earth")
 @EnableTransactionManagement
