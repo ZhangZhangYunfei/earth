@@ -2,12 +2,13 @@ buildscript {
     repositories {
         maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
         mavenCentral()
+        maven { url 'https://repo.spring.io/libs-milestone' }
     }
 }
 
 plugins {
     id 'io.spring.dependency-management' version '1.0.5.RELEASE'
-    id 'org.springframework.boot' version '1.5.12.RELEASE'
+    id 'org.springframework.boot' version '2.0.1.RELEASE'
 }
 
 allprojects {
@@ -33,12 +34,13 @@ allprojects {
     repositories {
         maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
         mavenCentral()
+        maven { url 'https://repo.spring.io/libs-milestone' }
     }
 
     dependencyManagement {
         imports {
             mavenBom 'io.spring.platform:platform-bom:Cairo-RELEASE'
-            mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Edgware.SR2'
+            mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Finchley.RC1'
         }
     }
 
