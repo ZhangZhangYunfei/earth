@@ -1,4 +1,4 @@
-bootJar {
+jar {
     baseName = 'earth-consul'
     version = '0.1.0'
 }
