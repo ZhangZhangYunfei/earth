@@ -15,7 +15,7 @@ import java.util.List;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class EmployeeRespositoryTests {
+public class EmployeeRepositoryTests {
 
   @Autowired
   private MerchantEmployeeRepository repository;

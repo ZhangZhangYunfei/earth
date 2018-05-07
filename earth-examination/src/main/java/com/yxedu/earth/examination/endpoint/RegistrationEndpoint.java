@@ -3,6 +3,7 @@ package com.yxedu.earth.examination.endpoint;
 import com.google.common.base.Strings;
 
 import com.yxedu.earth.common.UniformResponse;
+import com.yxedu.earth.common.exception.EarthException;
 import com.yxedu.earth.common.security.AuthenticationHelper;
 import com.yxedu.earth.examination.bean.CreateRegistrationRequest;
 import com.yxedu.earth.examination.bean.UpdateRegistrationRequest;
@@ -66,8 +67,10 @@ public class RegistrationEndpoint {
   public UniformResponse update(@RequestBody @Valid UpdateRegistrationRequest request) {
     log.info("The user {} is updating registration {}.",
         AuthenticationHelper.getId(), request.getId());
-    Registration registration = repository.findOne(request.getId());
-    Examination examination = examinationRepository.findOne(registration.getExaminationId());
+    Registration registration = repository.findById(request.getId())
+        .orElseThrow(() -> new EarthException("The registration is not found."));
+    Examination examination = examinationRepository.findById(registration.getExaminationId())
+        .orElseThrow(() -> new EarthException("The examination is not found."));
     AuthenticationHelper.checkExamineeIntegrity(registration.getExamineeId(),
         examination.getMerchantId());
 
@@ -119,8 +122,10 @@ public class RegistrationEndpoint {
   @PreAuthorize("isAuthenticated()")
   public UniformResponse get(@PathVariable Long id) {
     log.info("The user {} is querying registration {}.", AuthenticationHelper.getId(), id);
-    Registration registration = repository.findOne(id);
-    Examination examination = examinationRepository.findOne(registration.getExaminationId());
+    Registration registration = repository.findById(id)
+        .orElseThrow(() -> new EarthException("The registration is not found."));
+    Examination examination = examinationRepository.findById(registration.getExaminationId())
+        .orElseThrow(() -> new EarthException("The examination is not found."));
     AuthenticationHelper.checkExamineeIntegrity(registration.getExamineeId(),
         examination.getMerchantId());
 
@@ -150,8 +155,10 @@ public class RegistrationEndpoint {
   public UniformResponse getUrl(@PathVariable Long id, @RequestParam("paymentType") String type) {
     log.info("The user {} is getting pay url of registration {}.",
         AuthenticationHelper.getId(), id);
-    Registration registration = repository.findOne(id);
-    Examination examination = examinationRepository.findOne(registration.getExaminationId());
+    Registration registration = repository.findById(id)
+        .orElseThrow(() -> new EarthException("The registration is not found."));
+    Examination examination = examinationRepository.findById(registration.getExaminationId())
+        .orElseThrow(() -> new EarthException("The examination is not found."));
     AuthenticationHelper.checkExamineeIntegrity(registration.getExamineeId(),
         examination.getMerchantId());
 

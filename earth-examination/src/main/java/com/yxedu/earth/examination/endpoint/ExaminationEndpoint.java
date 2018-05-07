@@ -55,11 +55,8 @@ public class ExaminationEndpoint {
   public UniformResponse update(@RequestBody @Valid UpdateExaminationRequest request) {
     log.info("The user {} is updating examination {}.",
         AuthenticationHelper.getId(), request.getId());
-    Examination examination = repository.findOne(request.getId());
-    if (examination == null) {
-      log.error("The examination '{}' is not exist...", request.getId());
-      throw new EarthException("The examination is is not existed.");
-    }
+    Examination examination = repository.findById(request.getId())
+        .orElseThrow(() -> new EarthException("The examination is not found."));
     AuthenticationHelper.checkMerchantIntegrity(examination.getMerchantId());
 
     if (!Strings.isNullOrEmpty(request.getSubject())) {
@@ -113,7 +110,8 @@ public class ExaminationEndpoint {
   @GetMapping("/{id}")
   public UniformResponse get(@PathVariable Long id) {
     log.info("The user {} is querying examination {}.", AuthenticationHelper.getId(), id);
-    Examination examination = repository.findOne(id);
+    Examination examination = repository.findById(id)
+        .orElseThrow(() -> new EarthException("The examination is not found."));
     return UniformResponse.success(examination);
   }
 

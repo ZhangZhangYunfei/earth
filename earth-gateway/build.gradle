@@ -1,4 +1,4 @@
-bootJar {
+jar {
     baseName = 'earth-gateway'
     version = '0.1.0'
 }

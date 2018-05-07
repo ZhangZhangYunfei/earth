@@ -68,11 +68,8 @@ public class SecretEndpoint {
   @Secured(Constants.ROLE_ADMIN)
   @PutMapping
   UniformResponse update(@RequestBody @Valid UpdateSecretRequest request) {
-    Secret secret = secretRepository.findOne(request.getId());
-    if (secret == null) {
-      log.error("The secret {} is not existed!", request.getId());
-      throw new EarthException("The secret is not existed.");
-    }
+    Secret secret = secretRepository.findById(request.getId())
+        .orElseThrow(() -> new EarthException("The secret is not found."));
     AuthenticationHelper.checkMerchantIntegrity(secret.getMerchantId());
     if (request.getMerchantNo() != null) {
       secret.setMerchantNo(request.getMerchantNo());

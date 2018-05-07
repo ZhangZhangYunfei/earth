@@ -1,21 +1,13 @@
 buildscript {
-    ext {
-        springBootVersion = '2.0.0.RELEASE'
-    }
     repositories {
-        maven { url 'http://nexus.dianrong.com/nexus/content/groups/public/' }
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
         mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath('io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE')
-
     }
 }
 
 plugins {
-    id 'io.spring.dependency-management' version '1.0.4.RELEASE'
-    id 'org.springframework.boot' version '2.0.0.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.5.RELEASE'
+    id 'org.springframework.boot' version '1.5.12.RELEASE'
 }
 
 allprojects {
@@ -39,13 +31,13 @@ allprojects {
     }
 
     repositories {
-        maven { url 'http://nexus.dianrong.com/nexus/content/groups/public/' }
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
         mavenCentral()
     }
 
     dependencyManagement {
         imports {
-            mavenBom 'io.spring.platform:platform-bom:Brussels-SR7'
+            mavenBom 'io.spring.platform:platform-bom:Cairo-RELEASE'
             mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Edgware.SR2'
         }
     }
@@ -126,7 +118,8 @@ configure(subprojects.findAll() {
                 'org.springframework.security.oauth:spring-security-oauth2',
 
                 // session
-                'org.springframework.session:spring-session',
+                'org.springframework.session:spring-session-core',
+                'org.springframework.session:spring-session-data-redis',
 
                 // cache&redis
                 'com.github.ben-manes.caffeine:caffeine',

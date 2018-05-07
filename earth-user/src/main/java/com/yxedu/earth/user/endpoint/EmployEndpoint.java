@@ -2,6 +2,7 @@ package com.yxedu.earth.user.endpoint;
 
 import com.yxedu.earth.common.Constants;
 import com.yxedu.earth.common.UniformResponse;
+import com.yxedu.earth.common.exception.EarthException;
 import com.yxedu.earth.common.security.AuthenticationHelper;
 import com.yxedu.earth.user.bean.AssignEmployRequest;
 import com.yxedu.earth.user.bean.MerchantEmployResponse;
@@ -67,8 +68,10 @@ public class EmployEndpoint {
   UniformResponse delete(@PathVariable Long id) {
     log.info("The user {} is deleting an employee relationship.", AuthenticationHelper.getId(), id);
 
-    AuthenticationHelper.checkMerchantIntegrity(employeeRepository.findOne(id).getMerchantId());
-    employeeRepository.delete(id);
+    AuthenticationHelper.checkMerchantIntegrity(employeeRepository.findById(id)
+        .orElseThrow(() -> new EarthException("The merchant is not found."))
+        .getMerchantId());
+    employeeRepository.deleteById(id);
 
     Map<String, Long> resultMap = new HashMap<>(1);
     resultMap.put(KEY_ID, id);

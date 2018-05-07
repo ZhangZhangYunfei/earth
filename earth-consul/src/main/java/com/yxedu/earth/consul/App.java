@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
@@ -31,8 +30,8 @@ public class App {
   @Autowired
   private Environment env;
 
-  @Autowired(required = false)
-  private RelaxedPropertyResolver resolver;
+//  @Autowired(required = false)
+//  private RelaxedPropertyResolver resolver;
 
   @Value("${spring.application.name:consul}")
   private String appName;
@@ -40,12 +39,12 @@ public class App {
   /**
    * make check style happy.
    */
-  @PostConstruct
-  public void init() {
-    if (resolver == null) {
-      resolver = new RelaxedPropertyResolver(env);
-    }
-  }
+//  @PostConstruct
+//  public void init() {
+//    if (resolver == null) {
+//      resolver = new RelaxedPropertyResolver(env);
+//    }
+//  }
 
 //  @Bean
 //  public SubtypeModule sampleSubtypeModule() {

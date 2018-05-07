@@ -54,11 +54,8 @@ public class MerchantEndpoint {
     log.info("The user {} is updating merchant {}.", AuthenticationHelper.getId(), request.getId());
     AuthenticationHelper.checkMerchantIntegrity(request.getId());
 
-    Merchant merchant = repository.findOne(request.getId());
-    if (merchant == null) {
-      log.error("The merchant '{}' is not exist...", request.getName());
-      throw new EarthException("The merchant is is not existed.");
-    }
+    Merchant merchant = repository.findById(request.getId())
+        .orElseThrow(() -> new EarthException("The merchant is not found."));
     if (!Strings.isNullOrEmpty(request.getAddress())) {
       merchant.setAddress(request.getAddress());
     }
@@ -118,7 +115,8 @@ public class MerchantEndpoint {
   @GetMapping("/{id}")
   public UniformResponse get(@PathVariable Long id) {
     log.info("The user {} is querying merchant {}.", AuthenticationHelper.getId(), id);
-    Merchant merchant = repository.findOne(id);
+    Merchant merchant = repository.findById(id)
+        .orElseThrow(() -> new EarthException("The merchant is not found."));
     return UniformResponse.success(merchant);
   }
 }
